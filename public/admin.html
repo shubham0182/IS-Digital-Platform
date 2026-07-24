@@ -521,7 +521,7 @@ function doLogin() {
     if(d.success) {
       document.getElementById('loginOverlay').style.display='none';
       document.getElementById('dashboard').style.display='block';
-      loadStats(d.stats); loadOrders(); loadContacts();
+      loadStats(d.stats); loadOrders(); loadContacts(); loadUsers();
     } else { document.getElementById('loginError').style.display='block'; }
   }).catch(() => { document.getElementById('loginError').style.display='block'; });
 }
@@ -838,6 +838,61 @@ function loadContacts() {
       +'<td><div class="action-btns">'+iconBtn('btn-delete','trash','Delete Message',"deleteContact('"+c.id+"')")+'</div></td>'
     +'</tr>').join('');
   });
+}
+
+function loadUsers() {
+  fetch('/api/admin/users?key='+adminKey).then(r=>r.json()).then(d=>{
+    const body=document.getElementById('usersBody');
+    const empty=document.getElementById('usersEmpty');
+    if(!d.users||!d.users.length){ body.innerHTML=''; empty.style.display='block'; return; }
+    empty.style.display='none';
+    body.innerHTML=d.users.map((u,i)=>{
+      const st=u.status||'pending';
+      let actions='';
+      if(st==='pending'){
+        actions+=iconBtn('btn-approve','check','Approve',"approveUser('"+u.id+"')")
+        +iconBtn('btn-reject','trash','Reject',"rejectUser('"+u.id+"')");
+      } else if(st==='approved'){
+        actions+=iconBtn('btn-reject','trash','Revoke',"rejectUser('"+u.id+"')");
+      } else {
+        actions+=iconBtn('btn-approve','check','Approve',"approveUser('"+u.id+"')");
+      }
+      actions+=iconBtn('btn-delete','trash','Delete',"deleteUser('"+u.id+"')");
+      return '<tr>'
+        +'<td style="text-align:center;color:var(--text-dim);font-size:11px">'+(i+1)+'</td>'
+        +'<td style="font-size:11px;color:var(--text-dim)">'+fmtDate(u.createdAt)+'</td>'
+        +'<td><div style="display:flex;align-items:center;gap:8px">'+(u.picture?'<img src="'+u.picture+'" style="width:24px;height:24px;border-radius:50%;object-fit:cover" alt="">':'')+'<span style="font-weight:600">'+(u.name||'-')+'</span></div></td>'
+        +'<td style="font-size:11px">'+(u.email||'-')+'</td>'
+        +'<td><span class="user-status '+st+'" style="text-transform:capitalize;font-size:11px;padding:3px 8px;border-radius:4px">'+st+'</span></td>'
+        +'<td><div class="action-btns">'+actions+'</div></td>'
+      +'</tr>';
+    }).join('');
+    document.getElementById('statUsers').textContent=d.total;
+    document.getElementById('statPendingUsers').textContent=d.users.filter(u=>u.status==='pending').length;
+  });
+}
+
+function approveUser(id) {
+  fetch('/api/admin/users/'+id+'/approve?key='+adminKey,{method:'PUT'})
+  .then(r=>r.json()).then(d=>{
+    if(d.success){ showToast('User approved'); loadUsers(); loadStats2(); }
+    else showToast(d.error||'Failed',true);
+  }).catch(()=>showToast('Network error',true));
+}
+function rejectUser(id) {
+  fetch('/api/admin/users/'+id+'/reject?key='+adminKey,{method:'PUT'})
+  .then(r=>r.json()).then(d=>{
+    if(d.success){ showToast('User rejected'); loadUsers(); loadStats2(); }
+    else showToast(d.error||'Failed',true);
+  }).catch(()=>showToast('Network error',true));
+}
+function deleteUser(id) {
+  if(!confirm('Delete this user?')) return;
+  fetch('/api/admin/users/'+id+'?key='+adminKey,{method:'DELETE'})
+  .then(r=>r.json()).then(d=>{
+    if(d.success){ showToast('User deleted'); loadUsers(); loadStats2(); }
+    else showToast(d.error||'Failed',true);
+  }).catch(()=>showToast('Network error',true));
 }
 
 function updateStatus(id,status) {
