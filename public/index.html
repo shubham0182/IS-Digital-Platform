@@ -1897,6 +1897,23 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function navigateTo(pageId){
+    if (pageId === "order") {
+      const user = getTsUser();
+      if (!user) {
+        showToast("Please sign in with Google to place an order", "error");
+        googleModal.classList.add("open");
+        return;
+      }
+      if (user.status === "pending") {
+        showToast("Your account is pending admin approval", "error");
+        return;
+      }
+      if (user.status === "rejected") {
+        showToast("Your account has been rejected. Please contact support.", "error");
+        clearTsUser();
+        return;
+      }
+    }
     if (("#" + pageId) === location.hash) showPage(pageId);
     else location.hash = pageId;
   }
