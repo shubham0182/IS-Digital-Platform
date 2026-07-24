@@ -1,0 +1,2565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IS Digital Platform — Invitations, Carved in Light</title>
+<meta name="description" content="IS Digital Platform crafts premium digital invitations inspired by India's temple architecture — Nagara, Dravidian, Mughal and Indo-Saracenic — for weddings, birthdays, engagements and more.">
+<meta name="author" content="Raj Studio">
+<meta property="og:title" content="IS Digital Platform — Invitations, Carved in Light">
+<meta property="og:description" content="Premium digital invitations inspired by India's temple architecture. Wedding, Birthday, Engagement & more.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#150B18">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕌</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   TOKENS
+   ============================================================ */
+:root{
+  --font-display:'Fraunces', serif;
+  --font-label:'Cinzel', serif;
+  --font-body:'Manrope', sans-serif;
+
+  --gold:#C89B3C;
+  --gold-light:#E8C77E;
+  --maroon:#7A2440;
+  --maroon-deep:#4A1229;
+  --teal:#1F6F64;
+  --saffron:#D9772A;
+  --rose:#C6708A;
+  --ivory:#F6EDE0;
+
+  --radius-s:10px;
+  --radius-m:18px;
+  --radius-l:28px;
+  --container:1180px;
+  --nav-h:82px;
+  --ease:cubic-bezier(.16,.84,.44,1);
+}
+
+[data-theme="dark"]{
+  --bg:#150B18;
+  --bg-alt:#1C1020;
+  --surface:rgba(246,237,224,0.045);
+  --surface-strong:rgba(246,237,224,0.08);
+  --border:rgba(200,155,60,0.22);
+  --text:#F3E9DA;
+  --text-muted:rgba(243,233,218,0.62);
+  --accent:var(--gold);
+  --accent-2:var(--gold-light);
+  --shadow:0 20px 60px -20px rgba(0,0,0,0.65);
+  --divider-color:rgba(200,155,60,0.5);
+}
+[data-theme="light"]{
+  --bg:#FBF4E7;
+  --bg-alt:#F2E5CC;
+  --surface:rgba(122,36,64,0.045);
+  --surface-strong:rgba(255,255,255,0.65);
+  --border:rgba(122,36,64,0.16);
+  --text:#2B1420;
+  --text-muted:rgba(43,20,32,0.62);
+  --accent:var(--maroon);
+  --accent-2:var(--saffron);
+  --shadow:0 20px 50px -22px rgba(74,18,41,0.28);
+  --divider-color:rgba(122,36,64,0.45);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto;}*{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important;}}
+
+body{
+  font-family:var(--font-body);
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.6;
+  overflow-x:hidden;
+  transition:background .4s var(--ease),color .4s var(--ease);
+}
+img{max-width:100%;display:block;}
+a{color:inherit;text-decoration:none;}
+ul{list-style:none;}
+button{font:inherit;cursor:pointer;background:none;border:none;color:inherit;}
+input,textarea,select{font:inherit;color:inherit;}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
+
+.container{max-width:var(--container);margin:0 auto;padding:0 28px;}
+.eyebrow{
+  font-family:var(--font-label);
+  font-size:.72rem;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:var(--accent);
+  font-weight:600;
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+}
+.eyebrow.center{display:flex;justify-content:center;width:100%;margin-bottom:14px;}
+.eyebrow::before,.eyebrow::after{content:"";width:22px;height:1px;background:var(--divider-color);}
+.section-title{
+  font-family:var(--font-display);
+  font-weight:600;
+  font-size:clamp(1.9rem,3.6vw,3rem);
+  letter-spacing:-.01em;
+  margin-bottom:16px;
+}
+.section-title.center{text-align:center;}
+.section-sub{
+  color:var(--text-muted);
+  max-width:620px;
+  font-size:1.02rem;
+}
+.section-sub.center{text-align:center;margin:0 auto;}
+
+.section{padding:110px 0;position:relative;}
+.section-alt{background:var(--bg-alt);}
+
+/* ---------------- Page routing (SPA-style, one file, real "pages") ---------------- */
+.page{display:none;}
+.page.active-page{display:block;animation:pageIn .5s var(--ease);}
+@keyframes pageIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+.page-hero{
+  padding:calc(var(--nav-h) + 70px) 0 60px;text-align:center;position:relative;overflow:hidden;
+}
+.page-hero .eyebrow{justify-content:center;margin-bottom:16px;}
+.page-hero h1{font-family:var(--font-display);font-weight:600;font-size:clamp(2rem,4.2vw,3.2rem);margin-bottom:14px;}
+.page-hero p{color:var(--text-muted);max-width:560px;margin:0 auto;}
+
+/* ---------------- Skyline / tier divider (Dravidian gopuram motif) --------------- */
+.tier-divider{width:100%;height:34px;color:var(--divider-color);opacity:.9;}
+.tier-divider svg{width:100%;height:100%;display:block;}
+
+/* ---------------- Jali texture overlay ---------------- */
+.jali-veil{
+  position:absolute;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(45deg, var(--border) 1px, transparent 1px),
+    linear-gradient(-45deg, var(--border) 1px, transparent 1px);
+  background-size:46px 46px;
+  opacity:.35;
+  mask-image:radial-gradient(ellipse at center, black 0%, transparent 72%);
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:15px 30px;border-radius:100px;font-weight:700;font-size:.92rem;
+  letter-spacing:.01em;transition:transform .3s var(--ease),box-shadow .3s var(--ease),background .3s;
+  white-space:nowrap;
+}
+.btn-primary{
+  background:linear-gradient(135deg,var(--gold-light),var(--gold) 60%,#9c7526);
+  color:#241305;
+  box-shadow:0 14px 30px -12px rgba(200,155,60,0.55);
+}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 20px 40px -14px rgba(200,155,60,0.7);}
+.btn-ghost{
+  border:1px solid var(--border);
+  color:var(--text);
+  background:var(--surface);
+  backdrop-filter:blur(6px);
+}
+.btn-ghost:hover{border-color:var(--accent);transform:translateY(-3px);}
+.btn-sm{padding:10px 20px;font-size:.82rem;}
+.btn-block{width:100%;}
+
+/* ============================================================
+   LOADER — arch portal + mandala spin
+   ============================================================ */
+.loader{
+  position:fixed;inset:0;z-index:9999;background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;
+  transition:opacity .7s var(--ease),visibility .7s;
+}
+.loader.hidden{opacity:0;visibility:hidden;pointer-events:none;}
+.loader-mandala{width:150px;height:150px;animation:spin 12s linear infinite;color:var(--accent);}
+.loader-mandala .core{animation:pulse 2.2s ease-in-out infinite;transform-origin:center;}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes pulse{0%,100%{opacity:.5;}50%{opacity:1;}}
+.loader-word{font-family:var(--font-label);letter-spacing:.3em;font-size:.72rem;text-transform:uppercase;color:var(--text-muted);}
+.loader-bar{width:180px;height:2px;background:var(--border);border-radius:2px;overflow:hidden;}
+.loader-bar span{display:block;height:100%;width:0%;background:var(--accent);animation:load 1.6s var(--ease) forwards;}
+@keyframes load{to{width:100%;}}
+
+/* ============================================================
+   TOASTS
+   ============================================================ */
+.toast-container{position:fixed;bottom:24px;right:24px;z-index:9000;display:flex;flex-direction:column;gap:10px;}
+.toast{
+  background:var(--bg-alt);border:1px solid var(--border);color:var(--text);
+  padding:14px 20px;border-radius:var(--radius-s);box-shadow:var(--shadow);
+  font-size:.88rem;font-weight:600;max-width:300px;
+  animation:toastIn .35s var(--ease);border-left:3px solid var(--accent);
+}
+.toast.error{border-left-color:#C6432F;}
+@keyframes toastIn{from{opacity:0;transform:translateX(30px);}to{opacity:1;transform:translateX(0);}}
+.toast.out{animation:toastOut .3s var(--ease) forwards;}
+@keyframes toastOut{to{opacity:0;transform:translateX(30px);}}
+
+/* ============================================================
+   NAVBAR
+   ============================================================ */
+.navbar{
+  position:fixed;top:0;left:0;right:0;z-index:900;height:var(--nav-h);
+  display:flex;align-items:center;
+  background:transparent;
+  transition:background .4s var(--ease),border-color .4s,height .3s;
+  border-bottom:1px solid transparent;
+}
+.navbar.scrolled{
+  background:color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter:blur(14px);
+  border-color:var(--border);
+  height:70px;
+}
+.nav-inner{width:100%;max-width:var(--container);margin:0 auto;padding:0 28px;display:flex;align-items:center;justify-content:space-between;gap:20px;}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-mark{width:38px;height:38px;color:var(--accent);}
+.logo-text{font-family:var(--font-display);font-size:1.15rem;font-weight:600;letter-spacing:.01em;}
+.logo-text em{font-style:normal;color:var(--accent);}
+.nav-links{display:flex;align-items:center;gap:6px;}
+.nav-link{
+  padding:9px 15px;border-radius:100px;font-size:.87rem;font-weight:600;color:var(--text-muted);
+  transition:color .25s,background .25s;
+}
+.nav-link:hover,.nav-link.active{color:var(--text);background:var(--surface);}
+.nav-link.nav-cta{color:#241305;background:linear-gradient(135deg,var(--gold-light),var(--gold));margin-left:6px;}
+.nav-link.nav-cta:hover{filter:brightness(1.06);}
+.nav-actions{display:flex;align-items:center;gap:10px;}
+.icon-btn{
+  width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--border);background:var(--surface);transition:border-color .25s,transform .25s;
+}
+.icon-btn:hover{border-color:var(--accent);transform:translateY(-2px);}
+.icon-btn svg{width:19px;height:19px;stroke:currentColor;}
+[data-theme="dark"] .icon-sun{display:block;}
+[data-theme="dark"] .icon-moon{display:none;}
+[data-theme="light"] .icon-sun{display:none;}
+[data-theme="light"] .icon-moon{display:block;}
+.menu-toggle{display:none;width:42px;height:42px;border-radius:50%;border:1px solid var(--border);background:var(--surface);flex-direction:column;align-items:center;justify-content:center;gap:4px;}
+.menu-toggle span{width:18px;height:2px;background:var(--text);border-radius:2px;transition:.3s;}
+.menu-toggle.open span:nth-child(1){transform:translateY(6px) rotate(45deg);}
+.menu-toggle.open span:nth-child(2){opacity:0;}
+.menu-toggle.open span:nth-child(3){transform:translateY(-6px) rotate(-45deg);}
+
+/* ============================================================
+   HERO — the Portal (signature element)
+   ============================================================ */
+.hero{
+  position:relative;padding:calc(var(--nav-h) + 60px) 0 90px;overflow:hidden;
+  min-height:100vh;display:flex;align-items:center;
+}
+.hero-bg{position:absolute;inset:0;z-index:0;}
+.hero-glow{position:absolute;border-radius:50%;filter:blur(90px);opacity:.5;}
+.hero-glow.g1{width:520px;height:520px;top:-160px;left:-160px;background:radial-gradient(circle,var(--maroon),transparent 70%);}
+.hero-glow.g2{width:480px;height:480px;bottom:-180px;right:-140px;background:radial-gradient(circle,var(--teal),transparent 70%);}
+
+.hero-inner{position:relative;z-index:2;display:grid;grid-template-columns:1.05fr .95fr;gap:50px;align-items:center;}
+.hero-copy .eyebrow{margin-bottom:20px;}
+.hero-title{
+  font-family:var(--font-display);font-weight:600;font-size:clamp(2.4rem,4.6vw,4rem);
+  line-height:1.05;letter-spacing:-.01em;margin-bottom:22px;
+}
+.hero-title .arc{color:var(--accent);font-style:italic;}
+.hero-sub{color:var(--text-muted);font-size:1.05rem;max-width:480px;margin-bottom:34px;}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:50px;}
+.hero-stats{display:grid;grid-template-columns:repeat(4,auto);gap:34px;}
+.stat-num{font-family:var(--font-display);font-size:1.7rem;font-weight:600;color:var(--accent);display:block;}
+.stat-label{font-size:.74rem;color:var(--text-muted);letter-spacing:.02em;}
+
+/* the arch portal graphic */
+.portal-wrap{position:relative;display:flex;align-items:center;justify-content:center;}
+.portal-svg{width:100%;max-width:440px;color:var(--accent);}
+.portal-mandala{transform-origin:220px 250px;animation:spin 30s linear infinite;}
+.portal-mandala-inner{transform-origin:220px 250px;animation:spin 20s linear infinite reverse;}
+.portal-seal{fill:var(--maroon);}
+[data-theme="light"] .portal-seal{fill:var(--maroon);}
+.portal-seal-text{fill:var(--ivory);font-family:var(--font-label);font-size:15px;font-weight:700;}
+
+/* ============================================================
+   GLASS / SURFACE CARDS
+   ============================================================ */
+.glass{
+  background:var(--surface-strong);
+  border:1px solid var(--border);
+  border-radius:var(--radius-m);
+  backdrop-filter:blur(10px);
+  transition:transform .35s var(--ease),border-color .35s,box-shadow .35s;
+}
+.glass:hover{border-color:var(--accent);transform:translateY(-5px);box-shadow:var(--shadow);}
+
+/* ============================================================
+   REVEAL ANIMATION
+   ============================================================ */
+.reveal-up{opacity:0;transform:translateY(26px);transition:opacity .7s var(--ease),transform .7s var(--ease);}
+.reveal-up.in-view{opacity:1;transform:translateY(0);}
+
+/* ============================================================
+   STEPS (How it works)
+   ============================================================ */
+.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;align-items:start;margin-top:50px;}
+.step-card{padding:32px 24px;text-align:center;position:relative;}
+.step-num{font-family:var(--font-label);font-size:.75rem;letter-spacing:.15em;color:var(--accent);margin-bottom:14px;}
+.step-icon{width:56px;height:56px;margin:0 auto 18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--surface);border:1px solid var(--border);color:var(--accent);}
+.step-icon svg{width:24px;height:24px;}
+.step-title{font-family:var(--font-display);font-size:1.15rem;font-weight:600;margin-bottom:10px;}
+.step-desc{color:var(--text-muted);font-size:.9rem;}
+.step-connector{align-self:center;height:1px;background:repeating-linear-gradient(90deg,var(--divider-color) 0 6px,transparent 6px 12px);margin-top:48px;}
+
+/* ============================================================
+   FEATURES
+   ============================================================ */
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:50px;}
+.feature-card{padding:32px;}
+.feature-icon{width:50px;height:50px;border-radius:var(--radius-s);display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--maroon),var(--maroon-deep));color:var(--gold-light);margin-bottom:18px;}
+.feature-icon svg{width:22px;height:22px;}
+.feature-card h3{font-family:var(--font-display);font-size:1.15rem;margin-bottom:10px;font-weight:600;}
+.feature-card p{color:var(--text-muted);font-size:.92rem;}
+
+/* ============================================================
+   SERVICES — gopuram-tiered cards
+   ============================================================ */
+.services-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:50px;}
+.service-card{padding:30px 22px 26px;text-align:center;position:relative;overflow:hidden;}
+.service-card::before{
+  content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);width:70%;height:4px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.7;
+}
+.service-icon{width:52px;height:52px;margin:0 auto 16px;border-radius:14px 14px 4px 4px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--accent);}
+.service-icon svg{width:24px;height:24px;}
+.service-card h3{font-family:var(--font-display);font-size:1.02rem;font-weight:600;margin-bottom:8px;}
+.service-card p{color:var(--text-muted);font-size:.84rem;margin-bottom:16px;min-height:44px;}
+.service-choose{font-family:var(--font-label);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);border-bottom:1px solid var(--accent);padding-bottom:2px;font-weight:600;}
+
+/* ============================================================
+   PRICING — arch cards
+   ============================================================ */
+.pricing-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;margin-top:50px;}
+.price-card{
+  position:relative;padding:38px 26px 30px;text-align:center;
+  border-radius:120px 120px var(--radius-m) var(--radius-m);
+  border-top:1px solid var(--border);
+}
+.price-card.popular{border-color:var(--accent);box-shadow:var(--shadow);transform:scale(1.03);}
+.popular-badge{
+  position:absolute;top:16px;left:50%;transform:translateX(-50%);
+  font-family:var(--font-label);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;
+  background:var(--accent);color:#241305;padding:5px 14px;border-radius:100px;font-weight:700;
+}
+.price-plan{font-family:var(--font-display);font-size:1.1rem;font-weight:600;margin:10px 0 6px;}
+.price-amount{font-family:var(--font-display);font-size:2.4rem;font-weight:600;color:var(--accent);margin-bottom:18px;}
+.price-amount sup{font-size:1.1rem;top:-1em;}
+.price-list{margin-bottom:24px;text-align:left;}
+.price-list li{
+  font-size:.85rem;color:var(--text-muted);padding:8px 0 8px 22px;position:relative;
+  border-bottom:1px dashed var(--border);
+}
+.price-list li:last-child{border-bottom:none;}
+.price-list li::before{content:"✦";position:absolute;left:0;color:var(--accent);font-size:.72rem;}
+.choose-plan{
+  display:block;width:100%;padding:13px;border-radius:100px;font-weight:700;font-size:.85rem;text-align:center;
+  background:var(--surface);border:1px solid var(--border);transition:.3s;
+}
+.price-card.popular .choose-plan{background:linear-gradient(135deg,var(--gold-light),var(--gold));color:#241305;border:none;}
+.choose-plan:hover{border-color:var(--accent);transform:translateY(-2px);}
+
+.extras{margin-top:70px;}
+.extras-title{font-family:var(--font-display);font-size:1.3rem;text-align:center;margin-bottom:26px;font-weight:600;}
+.extras-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.extra-card{padding:18px 22px;display:flex;justify-content:space-between;align-items:center;font-size:.9rem;font-weight:600;}
+.extra-card span:last-child{color:var(--accent);font-family:var(--font-display);}
+
+/* ============================================================
+   PORTFOLIO
+   ============================================================ */
+.filter-bar{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:40px 0 44px;}
+.filter-btn{padding:9px 20px;border-radius:100px;border:1px solid var(--border);font-size:.82rem;font-weight:600;color:var(--text-muted);transition:.25s;}
+.filter-btn:hover{color:var(--text);}
+.filter-btn.active{background:var(--accent);color:#241305;border-color:var(--accent);}
+.portfolio-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.portfolio-item{overflow:hidden;cursor:pointer;transition:opacity .3s,transform .3s;}
+.portfolio-item.hide{display:none;}
+.p-bg{
+  height:200px;display:flex;align-items:center;justify-content:center;position:relative;
+  border-radius:var(--radius-m) var(--radius-m) 0 0;
+}
+.p-bg::after{content:"";position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,0.14) 1px,transparent 1.4px);background-size:16px 16px;opacity:.5;}
+.p-bg span{font-family:var(--font-display);font-size:1.2rem;color:#F6EDE0;font-weight:600;text-align:center;padding:0 20px;position:relative;z-index:1;}
+.p-body{padding:18px 20px 22px;}
+.p-tag{font-family:var(--font-label);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);}
+.p-body strong{display:block;font-family:var(--font-display);font-size:1.05rem;margin:6px 0 2px;}
+.p-sub{font-size:.8rem;color:var(--text-muted);}
+
+.lightbox{position:fixed;inset:0;background:rgba(10,5,10,0.9);z-index:9500;display:none;align-items:center;justify-content:center;padding:30px;}
+.lightbox.open{display:flex;}
+.lightbox-content{width:100%;max-width:560px;height:360px;border-radius:var(--radius-l);display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--font-display);font-size:1.3rem;text-align:center;padding:30px;}
+.lightbox-close{position:absolute;top:26px;right:30px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.1);color:#fff;font-size:1.4rem;}
+.lightbox-nav{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.1);color:#fff;font-size:1.6rem;}
+.lightbox-nav.prev{left:26px;}.lightbox-nav.next{right:26px;}
+
+/* ============================================================
+   TESTIMONIALS
+   ============================================================ */
+.testimonials-wrapper{margin-top:46px;overflow:hidden;}
+.testimonials-track{display:flex;gap:22px;transition:transform .6s var(--ease);}
+.testimonial-card{min-width:calc(33.333% - 15px);padding:28px;flex-shrink:0;}
+.testimonial-stars{color:var(--accent);letter-spacing:2px;margin-bottom:14px;}
+.testimonial-text{font-size:.92rem;color:var(--text-muted);margin-bottom:20px;min-height:90px;}
+.testimonial-author{display:flex;align-items:center;gap:12px;}
+.testimonial-avatar{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--font-display);font-weight:700;}
+.testimonial-author strong{display:block;font-size:.9rem;}
+.testimonial-author span{font-size:.78rem;color:var(--text-muted);}
+.testimonials-nav{display:flex;justify-content:center;gap:8px;margin-top:30px;}
+.testimonial-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:.3s;}
+.testimonial-dot.active{background:var(--accent);width:24px;border-radius:5px;}
+
+/* ============================================================
+   FAQ ACCORDION
+   ============================================================ */
+.faq-inner{max-width:760px;margin:44px auto 0;}
+.accordion-item{border-bottom:1px solid var(--border);}
+.accordion-q{width:100%;display:flex;justify-content:space-between;align-items:center;padding:22px 4px;text-align:left;font-family:var(--font-display);font-size:1.02rem;font-weight:600;}
+.plus{width:22px;height:22px;position:relative;flex-shrink:0;}
+.plus::before,.plus::after{content:"";position:absolute;background:var(--accent);top:50%;left:50%;transform:translate(-50%,-50%);transition:.3s;}
+.plus::before{width:14px;height:2px;}
+.plus::after{width:2px;height:14px;}
+.accordion-item.open .plus::after{transform:translate(-50%,-50%) rotate(90deg);opacity:0;}
+.accordion-a{max-height:0;overflow:hidden;transition:max-height .4s var(--ease);}
+.accordion-a p{padding:0 4px 22px;color:var(--text-muted);font-size:.92rem;max-width:640px;}
+
+/* ============================================================
+   FORMS (Order + Contact)
+   ============================================================ */
+.form-block{border:1px solid var(--border);border-radius:var(--radius-m);padding:26px 28px;margin-bottom:20px;background:var(--surface-strong);}
+.form-block legend,.form-block .block-title{font-family:var(--font-display);font-size:1.05rem;font-weight:600;margin-bottom:18px;padding:0;display:flex;align-items:center;gap:8px;}
+.form-block .block-title .num{font-family:var(--font-label);font-size:.7rem;color:var(--accent);}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.field{margin-bottom:16px;position:relative;}
+.field.full{grid-column:1/-1;}
+.field label{display:block;font-size:.82rem;font-weight:700;margin-bottom:7px;}
+.field input,.field select,.field textarea{
+  width:100%;padding:13px 15px;border-radius:var(--radius-s);border:1px solid var(--border);
+  background:var(--bg);color:var(--text);transition:border-color .25s;
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);}
+.field textarea{resize:vertical;min-height:100px;}
+.error-msg{display:none;color:#D5573B;font-size:.76rem;margin-top:5px;}
+.field.invalid input,.field.invalid textarea{border-color:#D5573B;}
+.field.invalid .error-msg{display:block;}
+.field.invalid .ts-control-trigger{border-color:#D5573B;}
+
+/* ---------------- Shared "carved tablet" trigger look for custom fields ---------------- */
+.ts-control-trigger{
+  width:100%;display:flex;align-items:center;gap:12px;padding:13px 15px;
+  border-radius:var(--radius-s);border:1px solid var(--border);background:var(--bg);
+  color:var(--text);font:inherit;font-size:.94rem;cursor:pointer;transition:border-color .25s,box-shadow .25s;
+  text-align:left;position:relative;
+}
+.ts-control-trigger:hover{border-color:var(--accent);}
+.ts-control-trigger.open{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);}
+.ts-control-icon{width:19px;height:19px;flex-shrink:0;color:var(--accent);}
+.ts-control-value{flex:1;color:var(--text);}
+.ts-control-value.placeholder{color:var(--text-muted);}
+
+.ts-panel{
+  position:absolute;top:calc(100% + 10px);left:0;right:0;z-index:60;
+  background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius-m);
+  box-shadow:var(--shadow);opacity:0;visibility:hidden;transform:translateY(-8px) scale(.98);
+  transform-origin:top center;transition:opacity .22s var(--ease),transform .22s var(--ease),visibility .22s;
+  overflow:hidden;
+}
+.ts-panel.open{opacity:1;visibility:visible;transform:translateY(0) scale(1);}
+.ts-panel::before{
+  content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);width:46px;height:3px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.8;
+}
+
+/* Custom select — Type of Event */
+.ts-select{position:relative;}
+.ts-select-arrow{margin-left:auto;flex-shrink:0;width:16px;height:16px;color:var(--accent);transition:transform .3s var(--ease);}
+.ts-control-trigger.open .ts-select-arrow{transform:rotate(180deg);}
+.ts-select-panel{max-height:290px;overflow-y:auto;padding:10px;list-style:none;}
+.ts-select-panel::-webkit-scrollbar{width:6px;}
+.ts-select-panel::-webkit-scrollbar-thumb{background:var(--border);border-radius:6px;}
+.ts-option{
+  display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:10px;font-size:.92rem;
+  cursor:pointer;transition:background .18s,color .18s;color:var(--text);
+}
+.ts-option:hover{background:var(--surface);}
+.ts-option.selected{background:color-mix(in srgb, var(--accent) 14%, transparent);color:var(--accent);font-weight:700;}
+.ts-option-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;background:var(--border);}
+.ts-option-check{margin-left:auto;width:15px;height:15px;color:var(--accent);opacity:0;flex-shrink:0;}
+.ts-option.selected .ts-option-check{opacity:1;}
+
+/* Custom date picker — Event Date */
+.ts-date{position:relative;}
+.ts-date-panel{padding:20px 20px 22px;width:320px;max-width:88vw;}
+.ts-date-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-top:4px;}
+.ts-date-nav{
+  width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--surface);
+  color:var(--accent);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.2s;font-size:1.1rem;
+}
+.ts-date-nav:hover{border-color:var(--accent);}
+.ts-date-title{font-family:var(--font-display);font-weight:600;font-size:1.05rem;}
+.ts-date-weekdays{
+  display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px;
+  font-family:var(--font-label);font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--text-muted);text-align:center;
+}
+.ts-date-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.ts-day{
+  aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:50%;
+  font-size:.86rem;cursor:pointer;background:transparent;border:1px solid transparent;color:var(--text);
+  transition:background .18s,color .18s,border-color .18s;position:relative;
+}
+.ts-day:not(.disabled):not(.pad):hover{background:var(--surface);}
+.ts-day.today{border-color:var(--accent);color:var(--accent);font-weight:700;}
+.ts-day.selected{background:linear-gradient(135deg,var(--gold-light),var(--gold));color:#241305;font-weight:700;}
+.ts-day.disabled{color:var(--text-muted);opacity:.3;cursor:not-allowed;}
+.ts-day.pad{visibility:hidden;cursor:default;}
+.ts-date-footer{display:flex;justify-content:space-between;margin-top:16px;padding-top:14px;border-top:1px dashed var(--border);}
+.ts-link-btn{
+  font-family:var(--font-label);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--accent);font-weight:700;background:none;border:none;cursor:pointer;
+}
+
+/* Custom time picker — Event Time (sundial dial) */
+.ts-time{position:relative;}
+.ts-time-panel{padding:26px 22px 22px;width:300px;max-width:88vw;text-align:center;}
+.ts-dial{
+  position:relative;width:190px;height:190px;margin:0 auto 18px;border-radius:50%;
+  border:1px solid var(--border);background:radial-gradient(circle at center, var(--surface) 0%, transparent 70%);
+}
+.ts-dial::before{content:"";position:absolute;inset:14px;border-radius:50%;border:1px dashed var(--border);opacity:.7;}
+.ts-dial-center{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-family:var(--font-display);font-weight:600;font-size:1.2rem;color:var(--accent);
+  width:66px;height:66px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:var(--bg-alt);border:1px solid var(--border);
+}
+.ts-dial-tick{
+  position:absolute;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:.78rem;font-weight:700;color:var(--text-muted);cursor:pointer;transition:.2s;
+  top:50%;left:50%;margin:-16px;
+}
+.ts-dial-tick:hover{color:var(--text);}
+.ts-dial-tick.selected{background:linear-gradient(135deg,var(--gold-light),var(--gold));color:#241305;box-shadow:0 4px 14px -4px rgba(200,155,60,.6);}
+.ts-minutes{display:flex;gap:8px;justify-content:center;margin-bottom:14px;flex-wrap:wrap;}
+.ts-pill-btn{
+  padding:8px 14px;border-radius:100px;border:1px solid var(--border);background:var(--surface);
+  color:var(--text);font-size:.8rem;font-weight:600;cursor:pointer;transition:.2s;
+}
+.ts-pill-btn:hover{border-color:var(--accent);}
+.ts-pill-btn.selected{background:var(--accent);color:#241305;border-color:var(--accent);}
+.ts-ampm{display:flex;gap:8px;justify-content:center;margin-bottom:18px;}
+.ts-ampm .ts-pill-btn{min-width:56px;}
+.ts-time-done{width:100%;}
+
+/* Wedding-function sub-dropdown reveal */
+.ts-sub-field{animation:tsSubIn .35s var(--ease);}
+@keyframes tsSubIn{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+.ts-hint{color:var(--text-muted);font-size:.86rem;margin:-8px 0 18px;}
+
+/* ---- Gated form: nothing past Step 1 shows until an event type is picked ---- */
+.pending-hint{
+  display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;
+  padding:44px 24px;color:var(--text-muted);border:1px dashed var(--border);border-radius:var(--radius-m);
+  margin-bottom:20px;
+}
+.pending-hint svg{width:34px;height:34px;color:var(--accent);opacity:.8;}
+.pending-hint p{font-size:.95rem;max-width:320px;}
+#restOfForm{animation:tsSubIn .5s var(--ease);}
+
+/* ---- Wedding Ceremonies sub-section (Step 1b style) ---- */
+.subblock-header{display:flex;align-items:flex-start;gap:14px;margin:22px 0 18px;padding-top:20px;border-top:1px dashed var(--border);}
+.subblock-badge{
+  width:30px;height:30px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--gold-light),var(--gold));color:#241305;
+  font-family:var(--font-label);font-size:.7rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+}
+.subblock-title{font-family:var(--font-display);font-size:1.1rem;font-weight:600;margin-bottom:4px;}
+.subblock-sub{color:var(--text-muted);font-size:.85rem;}
+
+.ceremony-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.ceremony-tile{
+  border:1px solid var(--border);border-radius:var(--radius-s);background:var(--bg);
+  transition:border-color .25s,box-shadow .25s;overflow:hidden;align-self:start;
+}
+.ceremony-tile.checked{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset;}
+.ceremony-tile.expanded{grid-column:1 / -1;}
+.ceremony-header{
+  width:100%;display:flex;align-items:center;gap:12px;padding:14px 16px;
+  background:none;border:none;cursor:pointer;color:var(--text);font:inherit;text-align:left;
+}
+.ceremony-checkbox{
+  width:18px;height:18px;border-radius:5px;border:1.5px solid var(--border);
+  flex-shrink:0;position:relative;transition:.2s;background:var(--surface);
+}
+.ceremony-tile.checked .ceremony-checkbox{background:linear-gradient(135deg,var(--gold-light),var(--gold));border-color:var(--gold);}
+.ceremony-tile.checked .ceremony-checkbox::after{
+  content:"";position:absolute;left:5px;top:1px;width:5px;height:9px;
+  border:solid #241305;border-width:0 2px 2px 0;transform:rotate(45deg);
+}
+.ceremony-label{flex:1;font-weight:700;font-size:.92rem;}
+.ceremony-chevron{width:16px;height:16px;color:var(--text-muted);transition:transform .3s var(--ease);flex-shrink:0;}
+.ceremony-tile.expanded .ceremony-chevron{transform:rotate(180deg);color:var(--accent);}
+.ceremony-detail{display:none;padding:0 16px 20px;}
+.ceremony-tile.expanded .ceremony-detail{display:block;animation:tsSubIn .3s var(--ease);}
+.ceremony-detail .field-row{grid-template-columns:1fr 1fr;}
+.ceremony-detail input[type="date"],.ceremony-detail input[type="time"]{color-scheme:dark;}
+[data-theme="light"] .ceremony-detail input[type="date"],[data-theme="light"] .ceremony-detail input[type="time"]{color-scheme:light;}
+
+@media(max-width:640px){
+  .ceremony-grid{grid-template-columns:1fr;}
+  .ceremony-tile.expanded{grid-column:auto;}
+  .ceremony-detail .field-row{grid-template-columns:1fr;}
+}
+
+.package-choices{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.package-pill{border:1px solid var(--border);border-radius:var(--radius-s);padding:16px;text-align:center;cursor:pointer;transition:.25s;}
+.package-pill input{position:absolute;opacity:0;pointer-events:none;}
+.package-pill span{display:block;}
+.package-pill .p-name{font-weight:700;font-size:.9rem;}
+.package-pill .p-price{font-family:var(--font-display);color:var(--accent);font-size:1.2rem;margin-top:4px;}
+.package-pill:has(input:checked){border-color:var(--accent);background:var(--surface);box-shadow:0 0 0 2px var(--accent) inset;}
+
+.color-swatches{display:flex;flex-wrap:wrap;gap:12px;margin-top:6px;}
+.color-swatch{
+  width:34px;height:34px;border-radius:50%;border:2px solid var(--border);position:relative;
+  transition:transform .2s,border-color .2s,box-shadow .2s;flex-shrink:0;
+}
+.color-swatch:hover{transform:translateY(-2px);}
+.color-swatch.selected{border-color:var(--text);transform:scale(1.12);box-shadow:0 4px 12px -4px rgba(0,0,0,.4);}
+.color-swatch.selected::after{
+  content:"";position:absolute;left:50%;top:50%;width:6px;height:11px;
+  border:solid #fff;border-width:0 2px 2px 0;transform:translate(-50%,-60%) rotate(45deg);
+  filter:drop-shadow(0 0 2px rgba(0,0,0,.7));
+}
+.color-swatch.light-swatch.selected::after{border-color:#241305;}
+.color-selected-text{font-size:.78rem;color:var(--text-muted);margin-top:12px;display:block;}
+.swatch-groupLabel{
+  font-family:var(--font-label);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--text-muted);font-weight:700;margin-bottom:10px;
+}
+
+.palette-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;}
+.palette-card{
+  border:1px solid var(--border);border-radius:var(--radius-s);padding:11px;cursor:pointer;
+  background:var(--bg);transition:border-color .25s,box-shadow .25s,transform .25s;text-align:left;
+}
+.palette-card:hover{border-color:var(--accent);transform:translateY(-2px);}
+.palette-card.active{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset;}
+.palette-strip{display:flex;height:26px;border-radius:7px;overflow:hidden;margin-bottom:9px;}
+.palette-strip span{flex:1;}
+.palette-name{font-size:.78rem;font-weight:700;color:var(--text);}
+
+@media(max-width:640px){
+  .palette-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));}
+}
+
+.check-pill{border:1px solid var(--border);border-radius:100px;padding:10px 18px;font-size:.85rem;font-weight:600;cursor:pointer;}
+.check-pill:has(input:checked){background:var(--accent);color:#241305;border-color:var(--accent);}
+.check-pill input{position:absolute;opacity:0;}
+.check-row{display:flex;gap:10px;flex-wrap:wrap;}
+
+.upload-btn{display:inline-flex;align-items:center;gap:8px;border:1px dashed var(--border);border-radius:var(--radius-s);padding:12px 18px;font-size:.84rem;font-weight:600;cursor:pointer;}
+.upload-btn input{display:none;}
+.upload-preview{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.upload-preview img{width:56px;height:56px;object-fit:cover;border-radius:8px;}
+
+.confirm-check{display:flex;align-items:flex-start;gap:10px;font-size:.85rem;color:var(--text-muted);}
+.confirm-check input{margin-top:3px;}
+
+.progress-track{height:4px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:34px;}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--gold),var(--gold-light));transition:width .4s var(--ease);}
+
+.coupon-row{display:flex;gap:10px;}
+.coupon-row input{flex:1;}
+
+.contact-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:36px;margin-top:50px;}
+.contact-form{padding:34px;}
+.contact-info{display:flex;flex-direction:column;gap:16px;}
+.contact-card{padding:20px;display:flex;align-items:center;gap:16px;}
+.contact-icon{width:44px;height:44px;border-radius:12px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--accent);flex-shrink:0;}
+.map-container iframe{width:100%;border-radius:var(--radius-m);filter: grayscale(0.15) contrast(1.05);}
+[data-theme="dark"] .map-container iframe{filter: invert(0.92) grayscale(0.4) contrast(0.9);}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.footer{position:relative;padding:80px 0 0;background:var(--bg-alt);border-top:1px solid var(--border);overflow:hidden;}
+.footer-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:40px;padding-bottom:50px;position:relative;z-index:1;}
+.footer-brand p{color:var(--text-muted);font-size:.88rem;margin:16px 0 20px;max-width:320px;}
+.social-icons{display:flex;gap:10px;}
+.social-icons a{width:38px;height:38px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;transition:.25s;}
+.social-icons a:hover{border-color:var(--accent);color:var(--accent);}
+.social-icons svg{width:16px;height:16px;fill:currentColor;}
+.footer-col h4{font-family:var(--font-label);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:18px;color:var(--accent);}
+.footer-col a{display:block;color:var(--text-muted);font-size:.88rem;margin-bottom:12px;transition:.2s;}
+.footer-col a:hover{color:var(--text);}
+.footer-bottom{border-top:1px solid var(--border);padding:22px 0;text-align:center;font-size:.8rem;color:var(--text-muted);position:relative;z-index:1;}
+
+/* ---------------- Back to top ---------------- */
+.back-to-top{
+  position:fixed;bottom:26px;left:26px;width:48px;height:48px;border-radius:50%;
+  background:var(--accent);color:#241305;display:flex;align-items:center;justify-content:center;
+  font-size:1.2rem;box-shadow:var(--shadow);opacity:0;pointer-events:none;transform:translateY(10px);
+  transition:.3s;z-index:800;
+}
+.back-to-top.show{opacity:1;pointer-events:auto;transform:translateY(0);}
+
+/* ============================================================
+   BOTTOM NAV (mobile only)
+   ============================================================ */
+.bottom-nav{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;z-index:950;
+  background:color-mix(in srgb, var(--bg) 85%, transparent);
+  backdrop-filter:blur(18px) saturate(1.4);
+  border-top:1px solid var(--border);
+  padding:6px 0 calc(6px + env(safe-area-inset-bottom, 0px));
+}
+.bottom-nav-inner{
+  display:flex;align-items:center;justify-content:space-around;
+  max-width:500px;margin:0 auto;padding:0 4px;
+}
+.bottom-nav-item{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:6px 10px;border-radius:14px;min-width:58px;
+  color:var(--text-muted);transition:color .25s,background .25s;
+  -webkit-tap-highlight-color:transparent;position:relative;
+}
+.bottom-nav-item:hover,.bottom-nav-item.active{color:var(--accent);}
+.bottom-nav-item.active::after{
+  content:"";position:absolute;top:-6px;left:50%;transform:translateX(-50%);
+  width:18px;height:3px;border-radius:3px;background:var(--accent);
+}
+.bottom-nav-item svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.bottom-nav-item span{font-size:.62rem;font-weight:700;letter-spacing:.02em;line-height:1;}
+.bottom-nav-item.nav-order{
+  background:linear-gradient(135deg,var(--gold-light),var(--gold));
+  color:#241305;border-radius:16px;padding:8px 14px;
+  box-shadow:0 4px 16px -4px rgba(200,155,60,0.55);
+}
+.bottom-nav-item.nav-order:hover,.bottom-nav-item.nav-order.active{
+  color:#241305;filter:brightness(1.06);
+}
+.bottom-nav-item.nav-order svg{stroke:#241305;}
+.bottom-nav-item.nav-order::after{display:none;}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media(max-width:1000px){
+  .hero-inner{grid-template-columns:1fr;}
+  .portal-wrap{order:-1;max-width:280px;margin:0 auto;}
+  .steps-grid{grid-template-columns:repeat(2,1fr);gap:30px 10px;}
+  .step-connector{display:none;}
+  .features-grid{grid-template-columns:repeat(2,1fr);}
+  .services-grid{grid-template-columns:repeat(2,1fr);}
+  .pricing-grid{grid-template-columns:repeat(2,1fr);}
+  .extras-grid{grid-template-columns:repeat(2,1fr);}
+  .portfolio-grid{grid-template-columns:repeat(2,1fr);}
+  .testimonial-card{min-width:calc(50% - 11px);}
+  .contact-grid{grid-template-columns:1fr;}
+  .field-row{grid-template-columns:1fr;}
+  .package-choices{grid-template-columns:repeat(2,1fr);}
+  .footer-grid{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:720px){
+  .bottom-nav{display:block;}
+  body{padding-bottom:80px;}
+  .nav-links{display:none !important;}
+  .menu-toggle{display:none !important;}
+  .nav-inner{justify-content:space-between;}
+  .hero-stats{grid-template-columns:repeat(2,1fr);row-gap:24px;}
+  .steps-grid,.features-grid,.services-grid,.pricing-grid,.extras-grid,.portfolio-grid{grid-template-columns:1fr;}
+  .testimonial-card{min-width:100%;}
+  .package-choices{grid-template-columns:1fr;}
+  .footer-grid{grid-template-columns:1fr;}
+  .section{padding:76px 0;}
+  .back-to-top{bottom:92px;}
+}
+</style>
+</head>
+<body data-theme="dark">
+
+<!-- ============ LOADER ============ -->
+<div class="loader" id="loader" aria-hidden="true">
+  <svg class="loader-mandala" viewBox="0 0 200 200" fill="none" stroke="currentColor">
+    <g class="core">
+      <circle cx="100" cy="100" r="86" stroke-width="1"/>
+      <circle cx="100" cy="100" r="66" stroke-width="1"/>
+      <circle cx="100" cy="100" r="10" stroke-width="1.4"/>
+    </g>
+    <g stroke-width="1.4">
+      <path d="M100 14 C112 34 112 46 100 66 C88 46 88 34 100 14Z" transform="rotate(0 100 100)"/>
+      <path d="M100 14 C112 34 112 46 100 66 C88 46 88 34 100 14Z" transform="rotate(30 100 100)"/>
+      <path d="M100 14 C112 34 112 46 100 66 C88 46 88 34 100 14Z" transform="rotate(60 100 100)"/>
+      <path d="M100 14 C112 34 112 46 100 66 C88 46 88 34 100 14Z" transform="rotate(90 100 100)"/>
+      <path d="M100 14 C112 34 112 46 100 66 C88 46 88 34 100 14Z" transform="rotate(120 100 100)"/>
+      <path d="M100 14 C112 34 112 46 100 66 C88 46 88 34 100 14Z" transform="rotate(150 100 100)"/>
+      <path d="M100 14 C112 34 112 46 100 66 C88 46 88 34 100 14Z" transform="rotate(180 100 100)"/>
+      <path d="M100 14 C112 34 112 46 100 66 C88 46 88 34 100 14Z" transform="rotate(210 100 100)"/>
+      <path d="M100 14 C112 34 112 46 100 66 C88 46 88 34 100 14Z" transform="rotate(240 100 100)"/>
+      <path d="M100 14 C112 34 112 46 100 66 C88 46 88 34 100 14Z" transform="rotate(270 100 100)"/>
+      <path d="M100 14 C112 34 112 46 100 66 C88 46 88 34 100 14Z" transform="rotate(300 100 100)"/>
+      <path d="M100 14 C112 34 112 46 100 66 C88 46 88 34 100 14Z" transform="rotate(330 100 100)"/>
+    </g>
+  </svg>
+  <p class="loader-word">IS Digital Platform</p>
+  <div class="loader-bar"><span></span></div>
+</div>
+
+<div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+<!-- shared SVG defs: tier pattern for dividers -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <pattern id="tierPattern" width="60" height="34" patternUnits="userSpaceOnUse">
+      <path d="M0 34 L8 34 L8 24 L18 24 L18 12 L30 12 L30 0 L42 12 L42 24 L52 24 L52 34 L60 34" fill="none" stroke="currentColor" stroke-width="1.4"/>
+      <circle cx="30" cy="4" r="2" fill="currentColor"/>
+    </pattern>
+  </defs>
+</svg>
+
+<!-- ============ NAVBAR ============ -->
+<header class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a href="#home" data-page="home" class="logo">
+      <svg class="logo-mark" viewBox="0 0 60 60" fill="none" stroke="currentColor" stroke-width="1.6">
+        <circle cx="30" cy="30" r="26"/>
+        <circle cx="30" cy="30" r="17"/>
+        <path d="M30 4 C36 14 36 20 30 30 C24 20 24 14 30 4Z" transform="rotate(0 30 30)"/>
+        <path d="M30 4 C36 14 36 20 30 30 C24 20 24 14 30 4Z" transform="rotate(45 30 30)"/>
+        <path d="M30 4 C36 14 36 20 30 30 C24 20 24 14 30 4Z" transform="rotate(90 30 30)"/>
+        <path d="M30 4 C36 14 36 20 30 30 C24 20 24 14 30 4Z" transform="rotate(135 30 30)"/>
+        <path d="M30 4 C36 14 36 20 30 30 C24 20 24 14 30 4Z" transform="rotate(180 30 30)"/>
+        <path d="M30 4 C36 14 36 20 30 30 C24 20 24 14 30 4Z" transform="rotate(225 30 30)"/>
+        <path d="M30 4 C36 14 36 20 30 30 C24 20 24 14 30 4Z" transform="rotate(270 30 30)"/>
+        <path d="M30 4 C36 14 36 20 30 30 C24 20 24 14 30 4Z" transform="rotate(315 30 30)"/>
+      </svg>
+      <span class="logo-text">IS Digital <em>Platform</em></span>
+    </a>
+
+    <nav class="nav-links" id="navLinks">
+      <a href="#home" class="nav-link active" data-nav data-page="home">Home</a>
+      <a href="#services" class="nav-link" data-nav data-page="services">Services</a>
+      <a href="#pricing" class="nav-link" data-nav data-page="pricing">Pricing</a>
+      <a href="#portfolio" class="nav-link" data-nav data-page="portfolio">Portfolio</a>
+      <a href="#order" class="nav-link nav-cta" data-nav data-page="order">Order Now</a>
+      <a href="#faq" class="nav-link" data-nav data-page="faq">FAQ</a>
+      <a href="#contact" class="nav-link" data-nav data-page="contact">Contact</a>
+    </nav>
+
+    <div class="nav-actions">
+      <button id="themeToggle" class="icon-btn" aria-label="Toggle dark and light mode">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="5"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="18.4" y1="18.4" x2="19.8" y2="19.8"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.2" y1="19.8" x2="5.6" y2="18.4"/><line x1="18.4" y1="5.6" x2="19.8" y2="4.2"/></g></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.5A9 9 0 1 1 11.5 3a7 7 0 0 0 9.5 9.5Z"/></svg>
+      </button>
+      <button id="menuToggle" class="menu-toggle" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="page active-page" id="home">
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="hero-bg" aria-hidden="true">
+    <div class="hero-glow g1"></div>
+    <div class="hero-glow g2"></div>
+    <div class="jali-veil"></div>
+  </div>
+
+  <div class="hero-inner container">
+    <div class="hero-copy">
+      <p class="eyebrow reveal-up">Nagara · Dravidian · Mughal · Indo-Saracenic</p>
+      <h1 class="hero-title reveal-up">Invitations<br>carved like <span class="arc">temple gates</span>,<br>sent in minutes</h1>
+      <p class="hero-sub reveal-up">Every design borrows from India's great architectural lineages — shikhara spires, gopuram tiers, Mughal arches and colonial jaalis — refit as digital cards, reels and RSVP sites for your celebration.</p>
+      <div class="hero-actions reveal-up">
+        <a href="#order" data-page="order" class="btn btn-primary">Begin Your Order</a>
+        <a href="#portfolio" data-page="portfolio" class="btn btn-ghost">View Portfolio</a>
+      </div>
+      <div class="hero-stats reveal-up">
+        <div class="stat"><span class="stat-num" data-count="4500">0</span><span class="stat-label">Invitations Crafted</span></div>
+        <div class="stat"><span class="stat-num" data-count="12">0</span><span class="stat-label">Invitation Styles</span></div>
+        <div class="stat"><span class="stat-num" data-count="24">0</span><span class="stat-label">Hour Delivery</span></div>
+        <div class="stat"><span class="stat-num" data-count="98">0</span><span class="stat-label">% Happy Hosts</span></div>
+      </div>
+    </div>
+
+    <div class="portal-wrap reveal-up">
+      <svg class="portal-svg" viewBox="0 0 440 500" fill="none">
+        <!-- gopuram tiers on top -->
+        <g stroke="currentColor" stroke-width="1.4" opacity=".85">
+          <path d="M170 40 L190 40 L190 24 L210 24 L210 8 L230 8 L230 24 L250 24 L250 40 L270 40"/>
+          <circle cx="220" cy="4" r="3" fill="currentColor"/>
+        </g>
+        <!-- pointed mughal arch (iwan) -->
+        <path d="M60 480 V260 C60 150 130 70 220 70 C310 70 380 150 380 260 V480" stroke="currentColor" stroke-width="2"/>
+        <path d="M90 480 V262 C90 168 148 100 220 100 C292 100 350 168 350 262 V480" stroke="currentColor" stroke-width="1" opacity=".55"/>
+        <!-- rotating mandala inside arch -->
+        <g class="portal-mandala" stroke="currentColor" stroke-width="1">
+          <circle cx="220" cy="250" r="95" opacity=".5"/>
+          <circle cx="220" cy="250" r="70" opacity=".7"/>
+          <g class="portal-mandala-inner">
+            <path d="M220 178 C232 198 232 210 220 230 C208 210 208 198 220 178Z" transform="rotate(0 220 250)"/>
+            <path d="M220 178 C232 198 232 210 220 230 C208 210 208 198 220 178Z" transform="rotate(45 220 250)"/>
+            <path d="M220 178 C232 198 232 210 220 230 C208 210 208 198 220 178Z" transform="rotate(90 220 250)"/>
+            <path d="M220 178 C232 198 232 210 220 230 C208 210 208 198 220 178Z" transform="rotate(135 220 250)"/>
+            <path d="M220 178 C232 198 232 210 220 230 C208 210 208 198 220 178Z" transform="rotate(180 220 250)"/>
+            <path d="M220 178 C232 198 232 210 220 230 C208 210 208 198 220 178Z" transform="rotate(225 220 250)"/>
+            <path d="M220 178 C232 198 232 210 220 230 C208 210 208 198 220 178Z" transform="rotate(270 220 250)"/>
+            <path d="M220 178 C232 198 232 210 220 230 C208 210 208 198 220 178Z" transform="rotate(315 220 250)"/>
+          </g>
+        </g>
+        <!-- wax seal -->
+        <circle class="portal-seal" cx="220" cy="250" r="34"/>
+        <text class="portal-seal-text" x="220" y="257" text-anchor="middle">IS</text>
+        <!-- base jali strip -->
+        <rect x="60" y="440" width="320" height="40" fill="url(#tierPattern)" opacity=".5"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<div class="tier-divider"><svg preserveAspectRatio="none" viewBox="0 0 600 34"><rect width="600" height="34" fill="url(#tierPattern)"/></svg></div>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section class="section">
+  <div class="container">
+    <p class="eyebrow center reveal-up">Four Stages, Like a Ritual</p>
+    <h2 class="section-title center reveal-up">How It Works</h2>
+    <p class="section-sub center reveal-up">From first sketch to final send-off — a simple path from concept to your perfect digital invitation.</p>
+    <div class="steps-grid">
+      <div class="step-card glass reveal-up">
+        <div class="step-num">Stage I</div>
+        <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12l2 6-8 14L4 8l2-6z"/><path d="M4 8h16"/><path d="M12 22V8"/></svg></div>
+        <h3 class="step-title">Choose Your Style</h3>
+        <p class="step-desc">Browse 12 invitation formats, each rooted in a different architectural lineage.</p>
+      </div>
+      <div class="step-connector reveal-up"></div>
+      <div class="step-card glass reveal-up">
+        <div class="step-num">Stage II</div>
+        <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+        <h3 class="step-title">Share the Details</h3>
+        <p class="step-desc">Tell us the event, the names, the palette, the story you want carried.</p>
+      </div>
+      <div class="step-connector reveal-up"></div>
+      <div class="step-card glass reveal-up">
+        <div class="step-num">Stage III</div>
+        <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c.5 3 2.5 5 5 6-2.5 1-4.5 3-5 6-.5-3-2.5-5-5-6 2.5-1 4.5-3 5-6z"/></svg></div>
+        <h3 class="step-title">We Carve the Design</h3>
+        <p class="step-desc">Our artists lay out gold-accented motifs, arches and lattice work by hand.</p>
+      </div>
+      <div class="step-connector reveal-up"></div>
+      <div class="step-card glass reveal-up">
+        <div class="step-num">Stage IV</div>
+        <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg></div>
+        <h3 class="step-title">It Reaches You</h3>
+        <p class="step-desc">Ready-to-share files land in your inbox — most within 24 hours.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WHY CHOOSE US ============ -->
+<section class="section section-alt">
+  <div class="container">
+    <p class="eyebrow center reveal-up">Why IS Digital Platform</p>
+    <h2 class="section-title center reveal-up">Crafted with Care, Delivered with Speed</h2>
+    <p class="section-sub center reveal-up">Every invitation carries the warmth of hand-carved stone and the convenience of a digital send.</p>
+    <div class="features-grid">
+      <div class="feature-card glass reveal-up">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+        <h3>Hand-Carved Detailing</h3>
+        <p>Each invitation is uniquely composed with gold-foil motifs and ornamental borders drawn from real temple carving.</p>
+      </div>
+      <div class="feature-card glass reveal-up">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <h3>Lightning Fast Delivery</h3>
+        <p>Most digital invitations arrive within 24 hours. Same Day Delivery gets it done in 4–6 hours.</p>
+      </div>
+      <div class="feature-card glass reveal-up">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+        <h3>Free Revisions Included</h3>
+        <p>Every package includes up to 2 free revisions — we refine until it feels right.</p>
+      </div>
+      <div class="feature-card glass reveal-up">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+        <h3>Fully Customizable</h3>
+        <p>Fourteen colour swatches, multiple typefaces and languages — no cookie-cutter templates.</p>
+      </div>
+      <div class="feature-card glass reveal-up">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+        <h3>Multiple Formats</h3>
+        <p>High-resolution JPG, PNG and MP4, sized for WhatsApp, Instagram, email and print.</p>
+      </div>
+      <div class="feature-card glass reveal-up">
+        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <h3>Secure &amp; Reliable</h3>
+        <p>Your data and designs are handled with care, with secure payments and full support.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="tier-divider"><svg preserveAspectRatio="none" viewBox="0 0 600 34"><rect width="600" height="34" fill="url(#tierPattern)"/></svg></div>
+</div><!-- /page home -->
+
+<div class="page" id="services">
+<!-- ============ SERVICES ============ -->
+<section class="section">
+  <div class="container">
+    <p class="eyebrow center reveal-up">Twelve Lineages</p>
+    <h2 class="section-title center reveal-up">An Invitation for Every Occasion</h2>
+    <p class="section-sub center reveal-up">Twelve invitation formats, each designed to feel personal — pick a style, tell us the story, and we do the rest.</p>
+    <div class="services-grid" id="servicesGrid"></div>
+    <div style="text-align:center;margin-top:50px">
+      <a href="#pricing" data-page="pricing" class="btn btn-primary">View Pricing</a>
+    </div>
+  </div>
+</section>
+</div><!-- /page services -->
+
+<div class="page" id="pricing">
+<!-- ============ PRICING ============ -->
+<section class="section section-alt">
+  <div class="container">
+    <p class="eyebrow center reveal-up">Simple, Honest Pricing</p>
+    <h2 class="section-title center reveal-up">Choose Your Package</h2>
+    <p class="section-sub center reveal-up">From a single elegant card to a full invitation website — pay only for what your celebration needs.</p>
+    <div class="pricing-grid" id="pricingGrid"></div>
+    <div class="extras">
+      <h3 class="extras-title reveal-up">Extra Services</h3>
+      <div class="extras-grid" id="extrasGrid"></div>
+    </div>
+  </div>
+</section>
+</div><!-- /page pricing -->
+
+<div class="page" id="portfolio">
+<div class="tier-divider"><svg preserveAspectRatio="none" viewBox="0 0 600 34"><rect width="600" height="34" fill="url(#tierPattern)"/></svg></div>
+
+<!-- ============ PORTFOLIO ============ -->
+<section class="section">
+  <div class="container">
+    <p class="eyebrow center reveal-up">Recent Work</p>
+    <h2 class="section-title center reveal-up">A Peek Into Our Portfolio</h2>
+    <p class="section-sub center reveal-up">Every card below is a real layout style — filter by celebration to see what fits yours.</p>
+    <div class="filter-bar" id="filterBar">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="wedding">Wedding</button>
+      <button class="filter-btn" data-filter="birthday">Birthday</button>
+      <button class="filter-btn" data-filter="engagement">Engagement</button>
+      <button class="filter-btn" data-filter="babyshower">Baby Shower</button>
+      <button class="filter-btn" data-filter="website">Website</button>
+      <button class="filter-btn" data-filter="video">Video</button>
+    </div>
+    <div class="portfolio-grid" id="portfolioGrid"></div>
+  </div>
+</section>
+
+<!-- ============ TESTIMONIALS ============ -->
+<section class="section section-alt">
+  <div class="container">
+    <p class="eyebrow center reveal-up">Client Love</p>
+    <h2 class="section-title center reveal-up">What Our Clients Say</h2>
+    <p class="section-sub center reveal-up">Hear from people who trusted us with their celebrations.</p>
+    <div class="testimonials-wrapper">
+      <div class="testimonials-track" id="testimonialsTrack"></div>
+      <div class="testimonials-nav" id="testimonialsNav"></div>
+    </div>
+  </div>
+</section>
+</div><!-- /page portfolio -->
+
+<!-- lightbox lives outside any page so it can overlay regardless of active page -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightboxClose" aria-label="Close preview">&times;</button>
+  <button class="lightbox-nav prev" id="lightboxPrev" aria-label="Previous image">&#8249;</button>
+  <div class="lightbox-content" id="lightboxContent"></div>
+  <button class="lightbox-nav next" id="lightboxNext" aria-label="Next image">&#8250;</button>
+</div>
+
+<div class="page" id="order">
+<!-- ============ ORDER ============ -->
+<section class="section">
+  <div class="container" style="max-width:900px">
+    <p class="eyebrow center reveal-up">Begin Your Order</p>
+    <h2 class="section-title center reveal-up">Start Your Order</h2>
+    <p class="section-sub center reveal-up">Fill in your details below — we'll get in touch within 2 hours to confirm.</p>
+
+    <form id="orderForm" style="margin-top:44px" novalidate enctype="multipart/form-data">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+      <fieldset class="form-block">
+        <div class="block-title"><span class="num">01</span> Event Details</div>
+        <div class="field-row">
+          <div class="field">
+            <label id="eventTypeLabel">Type of Event <span style="color:#D5573B">*</span></label>
+            <div class="ts-select" id="eventTypeSelect">
+              <button type="button" class="ts-control-trigger" id="eventTypeTrigger"
+                      aria-haspopup="listbox" aria-expanded="false" aria-labelledby="eventTypeLabel">
+                <svg class="ts-control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M6 2h12l2 6-8 14L4 8l2-6z"/><path d="M4 8h16"/><path d="M12 22V8"/>
+                </svg>
+                <span class="ts-control-value placeholder" id="eventTypeValue">Select event type</span>
+                <svg class="ts-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <ul class="ts-panel ts-select-panel" id="eventTypePanel" role="listbox" tabindex="-1"></ul>
+            </div>
+            <input type="hidden" id="eventType" name="eventType" required>
+            <span class="error-msg">Please select an event type</span>
+          </div>
+          <div class="field">
+            <label id="eventDateLabel">Event Date <span style="color:#D5573B">*</span></label>
+            <div class="ts-date" id="eventDateWidget">
+              <button type="button" class="ts-control-trigger" id="eventDateTrigger"
+                      aria-haspopup="dialog" aria-expanded="false" aria-labelledby="eventDateLabel">
+                <svg class="ts-control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/>
+                </svg>
+                <span class="ts-control-value placeholder" id="eventDateValue">Choose a date</span>
+              </button>
+              <div class="ts-panel ts-date-panel" id="eventDatePanel" role="dialog" aria-label="Choose event date">
+                <div class="ts-date-header">
+                  <button type="button" class="ts-date-nav" id="calPrev" aria-label="Previous month">&#8249;</button>
+                  <span class="ts-date-title" id="calTitle"></span>
+                  <button type="button" class="ts-date-nav" id="calNext" aria-label="Next month">&#8250;</button>
+                </div>
+                <div class="ts-date-weekdays">
+                  <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+                </div>
+                <div class="ts-date-grid" id="calGrid"></div>
+                <div class="ts-date-footer">
+                  <button type="button" class="ts-link-btn" id="calToday">Today</button>
+                  <button type="button" class="ts-link-btn" id="calClear">Clear</button>
+                </div>
+              </div>
+            </div>
+            <input type="hidden" id="eventDate" name="eventDate" required>
+            <span class="error-msg">Please choose a date</span>
+          </div>
+        </div>
+
+        <div class="ts-sub-field ceremonies-section" id="weddingCeremoniesSection" style="display:none">
+          <div class="subblock-header">
+            <span class="subblock-badge">1b</span>
+            <div>
+              <h3 class="subblock-title">Wedding Ceremonies</h3>
+              <p class="subblock-sub">Select ceremonies and add their details.</p>
+            </div>
+          </div>
+          <div class="ceremony-grid" id="ceremonyGrid"></div>
+          <span class="error-msg" id="ceremonyError">Please select at least one ceremony</span>
+          <input type="hidden" id="selectedCeremonies" name="selectedCeremonies">
+        </div>
+
+        <div class="field" style="max-width:340px">
+          <label id="eventTimeLabel">Event Time</label>
+          <div class="ts-time" id="eventTimeWidget">
+            <button type="button" class="ts-control-trigger" id="eventTimeTrigger"
+                    aria-haspopup="dialog" aria-expanded="false" aria-labelledby="eventTimeLabel">
+              <svg class="ts-control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>
+              </svg>
+              <span class="ts-control-value placeholder" id="eventTimeValue">Select a time</span>
+            </button>
+            <div class="ts-panel ts-time-panel" id="eventTimePanel" role="dialog" aria-label="Choose event time">
+              <div class="ts-dial" id="tsDial">
+                <div class="ts-dial-center" id="dialCenterLabel">--:--</div>
+              </div>
+              <div class="ts-minutes" id="tsMinutes">
+                <button type="button" class="ts-pill-btn" data-min="00">:00</button>
+                <button type="button" class="ts-pill-btn" data-min="15">:15</button>
+                <button type="button" class="ts-pill-btn" data-min="30">:30</button>
+                <button type="button" class="ts-pill-btn" data-min="45">:45</button>
+              </div>
+              <div class="ts-ampm">
+                <button type="button" class="ts-pill-btn" data-period="AM">AM</button>
+                <button type="button" class="ts-pill-btn" data-period="PM">PM</button>
+              </div>
+              <button type="button" class="btn btn-primary btn-sm ts-time-done" id="timeDone">Set Time</button>
+            </div>
+          </div>
+          <input type="hidden" id="eventTime" name="eventTime">
+        </div>
+      </fieldset>
+
+      <div class="pending-hint" id="pendingHint">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 3 5 6.5 5c1.9 0 3.3 1 4 2.3C11.2 6 12.6 5 14.5 5 18 5 20.5 8.5 20.5 12.5 18 16.65 12 21 12 21z"/></svg>
+        <p>Choose your event type above to unlock the rest of the order form.</p>
+      </div>
+
+      <div id="restOfForm" style="display:none">
+
+      <fieldset class="form-block ts-sub-field" id="eventQuestionsBlock" style="display:none">
+        <div class="block-title"><span class="num">02</span> <span id="eventQuestionsTitle">Invitation Details</span></div>
+        <p class="ts-hint" id="eventQuestionsHint">Tell us what should appear on the card for this occasion.</p>
+        <div id="eventQuestionsContent"></div>
+      </fieldset>
+
+      <fieldset class="form-block">
+        <div class="block-title"><span class="num">03</span> Host &amp; Celebrants</div>
+        <div class="field-row">
+          <div class="field">
+            <label for="hostName">Host Name <span style="color:#D5573B">*</span></label>
+            <input type="text" id="hostName" name="hostName" placeholder="e.g. Sharma Family" required>
+            <span class="error-msg">Please enter the host name</span>
+          </div>
+          <div class="field">
+            <label for="hostRelation">Relation / Title</label>
+            <input type="text" id="hostRelation" name="hostRelation" placeholder="e.g. Parents of the Bride">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="name1">Name of Celebrant 1 <span style="color:#D5573B">*</span></label>
+            <input type="text" id="name1" name="name1" required>
+            <span class="error-msg">Please enter a name</span>
+          </div>
+          <div class="field">
+            <label for="name2">Name of Celebrant 2</label>
+            <input type="text" id="name2" name="name2">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="form-block">
+        <div class="block-title"><span class="num">04</span> Venue</div>
+        <div class="field-row">
+          <div class="field">
+            <label for="venueName">Venue Name <span style="color:#D5573B">*</span></label>
+            <input type="text" id="venueName" name="venueName" required>
+            <span class="error-msg">Please enter the venue</span>
+          </div>
+          <div class="field">
+            <label for="venueCity">City <span style="color:#D5573B">*</span></label>
+            <input type="text" id="venueCity" name="venueCity" required>
+            <span class="error-msg">Please enter the city</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="venueAddress">Venue Address</label>
+          <input type="text" id="venueAddress" name="venueAddress">
+        </div>
+      </fieldset>
+
+      <fieldset class="form-block">
+        <div class="block-title"><span class="num">05</span> Your Contact Info</div>
+        <div class="field-row">
+          <div class="field">
+            <label for="cname">Your Name <span style="color:#D5573B">*</span></label>
+            <input type="text" id="cname" name="cname" required>
+            <span class="error-msg">Please enter your name</span>
+          </div>
+          <div class="field">
+            <label for="email">Email <span style="color:#D5573B">*</span></label>
+            <input type="email" id="email" name="email" required>
+            <span class="error-msg">Please enter a valid email</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="mobile">Mobile Number <span style="color:#D5573B">*</span></label>
+          <input type="tel" id="mobile" name="mobile" placeholder="+91" required>
+          <span class="error-msg">Please enter your mobile number</span>
+        </div>
+      </fieldset>
+
+      <fieldset class="form-block">
+        <div class="block-title"><span class="num">06</span> Choose Your Package</div>
+        <div class="package-choices" id="packageChoices"></div>
+        <span class="error-msg" id="packageError">Please choose a package</span>
+      </fieldset>
+
+      <fieldset class="form-block" data-plans="basic premium website">
+        <div class="block-title"><span class="num">07</span> Theme &amp; Colours</div>
+        <div class="field-row">
+          <div class="field">
+            <label for="theme">Theme / Style</label>
+            <select id="theme" name="theme">
+              <option>Royal Gold</option><option>Floral</option><option>Minimal</option><option>Traditional</option><option>Modern</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="fontStyle">Font Style</label>
+            <select id="fontStyle" name="fontStyle">
+              <option>Serif Elegant</option><option>Modern Sans</option><option>Calligraphy</option>
+            </select>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Preferred Colours</label>
+          <p class="ts-hint" style="margin:-2px 0 14px">Pick a curated palette, or build your own from individual colours below.</p>
+
+          <p class="swatch-groupLabel">Curated Palettes</p>
+          <div class="palette-grid" id="paletteGrid"></div>
+
+          <p class="swatch-groupLabel" style="margin-top:20px">Individual Colours</p>
+          <div class="color-swatches" id="colorPicker"></div>
+
+          <input type="hidden" id="colors" name="colors">
+          <span class="color-selected-text" id="colorSelected">No colours selected</span>
+        </div>
+      </fieldset>
+
+      <fieldset class="form-block" data-plans="animated">
+        <div class="block-title"><span class="num">07</span> Animated Video Details</div>
+        <div class="field-row">
+          <div class="field">
+            <label for="animDuration">Video Duration</label>
+            <select id="animDuration" name="animDuration"><option>15 seconds</option><option>20 seconds</option><option>30 seconds</option></select>
+          </div>
+          <div class="field">
+            <label for="animMusic">Background Music Style</label>
+            <select id="animMusic" name="animMusic"><option>Classical</option><option>Modern</option><option>Devotional</option></select>
+          </div>
+        </div>
+        <div class="field full">
+          <label for="animScript">Text / Script for Animation</label>
+          <textarea id="animScript" name="animScript" placeholder="Names, date, venue, or a short message..."></textarea>
+        </div>
+      </fieldset>
+
+      <fieldset class="form-block" data-plans="website">
+        <div class="block-title"><span class="num">07</span> Website Invitation Details</div>
+        <div class="field-row">
+          <div class="field">
+            <label for="webDomain">Custom Domain</label>
+            <input type="text" id="webDomain" name="webDomain" placeholder="e.g. aanyaandrohan.com">
+          </div>
+          <div class="field">
+            <label for="webRSVP">RSVP Method</label>
+            <select id="webRSVP" name="webRSVP"><option>Online Form</option><option>WhatsApp</option><option>Both</option></select>
+          </div>
+        </div>
+        <div class="field full">
+          <label for="webExtra">Additional Pages / Notes</label>
+          <textarea id="webExtra" name="webExtra" placeholder="Gallery, countdown, map, music preferences..."></textarea>
+        </div>
+      </fieldset>
+
+      <fieldset class="form-block" data-plans="basic premium animated website">
+        <div class="block-title"><span class="num">08</span> Uploads</div>
+        <label class="upload-btn" for="uploadPhotos">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Upload Photos (up to 6)
+          <input type="file" id="uploadPhotos" accept="image/*" multiple>
+        </label>
+        <div class="upload-preview" id="previewPhotos"></div>
+      </fieldset>
+
+      <fieldset class="form-block" data-plans="basic premium animated website">
+        <div class="block-title"><span class="num">09</span> Payment</div>
+        <div class="field full">
+          <label>Payment Method <span style="color:#D5573B">*</span></label>
+          <div class="check-row">
+            <label class="check-pill"><input type="radio" name="payment" value="upi"> UPI</label>
+            <label class="check-pill"><input type="radio" name="payment" value="card"> Card</label>
+            <label class="check-pill"><input type="radio" name="payment" value="netbanking"> Net Banking</label>
+            <label class="check-pill"><input type="radio" name="payment" value="cod"> Pay on Delivery</label>
+          </div>
+          <span class="error-msg" id="paymentError">Please choose a payment method</span>
+        </div>
+        <div class="field full">
+          <label for="coupon">Coupon Code</label>
+          <div class="coupon-row">
+            <input type="text" id="coupon" name="coupon" placeholder="e.g. WELCOME10">
+            <button type="button" class="btn btn-ghost btn-sm" id="applyCoupon">Apply</button>
+          </div>
+        </div>
+        <label class="confirm-check">
+          <input type="checkbox" id="confirmInfo" required>
+          I confirm the details above are correct and I agree to the Terms &amp; Conditions.
+        </label>
+      </fieldset>
+
+      <button type="submit" class="btn btn-primary btn-block">Submit Order</button>
+
+      </div><!-- /restOfForm -->
+    </form>
+  </div>
+</section>
+</div><!-- /page order -->
+
+<div class="page" id="faq">
+<div class="tier-divider"><svg preserveAspectRatio="none" viewBox="0 0 600 34"><rect width="600" height="34" fill="url(#tierPattern)"/></svg></div>
+
+<!-- ============ FAQ ============ -->
+<section class="section section-alt">
+  <div class="container">
+    <p class="eyebrow center reveal-up">Good to Know</p>
+    <h2 class="section-title center reveal-up">Frequently Asked Questions</h2>
+    <p class="section-sub center reveal-up">Everything you need to know about our process, delivery, and designs — all in one place.</p>
+    <div class="faq-inner"><div id="accordion"></div></div>
+    <div style="text-align:center;margin-top:44px">
+      <a href="#contact" data-page="contact" class="btn btn-ghost">Still have questions? Contact Us</a>
+    </div>
+  </div>
+</section>
+</div><!-- /page faq -->
+
+<div class="page" id="contact">
+<!-- ============ CONTACT ============ -->
+<section class="section">
+  <div class="container">
+    <p class="eyebrow center reveal-up">Get In Touch</p>
+    <h2 class="section-title center reveal-up">Let's Design Your Invitation</h2>
+    <p class="section-sub center reveal-up">Have a question, an idea, or ready to begin? Drop us a message and we'll get back to you within 24 hours.</p>
+    <div class="contact-grid">
+      <form class="contact-form glass" id="contactForm" novalidate>
+        <div class="field">
+          <label for="cName">Your Name</label>
+          <input type="text" id="cName" name="name" placeholder="e.g. Priya Sharma" required>
+          <span class="error-msg">Please enter your name</span>
+        </div>
+        <div class="field">
+          <label for="cEmail">Your Email</label>
+          <input type="email" id="cEmail" name="email" placeholder="e.g. priya@example.com" required>
+          <span class="error-msg">Please enter a valid email</span>
+        </div>
+        <div class="field full">
+          <label for="cMessage">Your Message</label>
+          <textarea id="cMessage" name="message" rows="5" placeholder="Tell us about your event, style preferences, or any questions you have..." required></textarea>
+          <span class="error-msg">Please write your message</span>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Send Message</button>
+      </form>
+      <div class="contact-info">
+        <div class="contact-card glass">
+          <span class="contact-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.5 3.5A11 11 0 0 0 3.6 17.3L2 22l4.8-1.6A11 11 0 1 0 20.5 3.5Z"/></svg></span>
+          <div><strong>WhatsApp</strong><p><a href="https://wa.me/910000000000">+91 00000 00000</a></p></div>
+        </div>
+        <a href="mailto:hello@isdigitalplatform.com" class="contact-card glass">
+          <span class="contact-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 7L2 7"/></svg></span>
+          <div><strong>Email</strong><p>hello@isdigitalplatform.com</p></div>
+        </a>
+        <div class="contact-card glass">
+          <span class="contact-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg></span>
+          <div><strong>Address</strong><p>Ahmedabad, Gujarat, India</p></div>
+        </div>
+        <div class="contact-card glass">
+          <span class="contact-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
+          <div><strong>Business Hours</strong><p>Mon – Sat: 10:00 AM – 8:00 PM<br>Sunday: Closed</p></div>
+        </div>
+        <div class="map-container">
+          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d235013.74829646664!2d72.41412707400997!3d23.02047413310375!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395e848aba5bd6ef%3A0x4cce1c0ef3ab1f0d!2sAhmedabad%2C%20Gujarat!5e0!3m2!1sen!2sin!4v1688890123456!5m2!1sen!2sin" width="100%" height="220" style="border:0;border-radius:12px" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="IS Digital Platform Location"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</div><!-- /page contact -->
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="jali-veil" style="opacity:.18"></div>
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <a href="#home" data-page="home" class="logo">
+        <svg class="logo-mark" viewBox="0 0 60 60" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="30" cy="30" r="26"/><circle cx="30" cy="30" r="17"/></svg>
+        <span class="logo-text">IS Digital <em>Platform</em></span>
+      </a>
+      <p>Beautiful digital invitations for every celebration, inspired by India's temple architecture, crafted with care in Ahmedabad.</p>
+      <div class="social-icons">
+        <a href="javascript:void(0)" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6m9.65 1.5a1.25 1.25 0 0 1 0 2.5 1.25 1.25 0 0 1 0-2.5M12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10m0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg></a>
+        <a href="javascript:void(0)" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.879V14.89h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.989C18.343 21.129 22 16.99 22 12c0-5.523-4.477-10-10-10z"/></svg></a>
+        <a href="https://wa.me/910000000000" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 2.1.68 4.05 1.83 5.62L2.3 21.35l3.96-1.49c1.53.83 3.27 1.28 5.11 1.28 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2m.28 14.9c-1.36 0-2.7-.37-3.87-1.07l-.28-.17-2.4.9.74-2.28-.18-.29a7.83 7.83 0 0 1-1.2-4.17c0-4.31 3.52-7.83 7.84-7.83a7.8 7.8 0 0 1 7.78 7.83c0 4.32-3.5 7.84-7.78 7.84l-.65-.01zm4.17-5.86c-.23-.12-1.36-.67-1.57-.74-.21-.08-.36-.12-.52.12-.15.23-.6.74-.73.9-.13.15-.27.17-.5.06-.23-.12-.99-.36-1.88-1.16-.7-.62-1.17-1.39-1.3-1.63-.14-.23-.02-.35.1-.47.1-.1.23-.27.35-.4.12-.14.16-.23.24-.38.08-.15.04-.28-.02-.4-.06-.12-.52-1.25-.71-1.71-.2-.5-.39-.38-.52-.38-.13-.01-.29-.01-.45-.01-.16 0-.42.06-.64.3-.22.24-.86.84-.86 2.05 0 1.2.88 2.37 1 2.53.12.15 1.73 2.64 4.19 3.7.59.25 1.05.4 1.4.52.6.2 1.14.17 1.57.1.48-.07 1.5-.61 1.71-1.2.22-.59.22-1.1.15-1.2-.06-.1-.23-.16-.46-.28z"/></svg></a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Quick Links</h4>
+      <a href="#services" data-page="services">Services</a>
+      <a href="#pricing" data-page="pricing">Pricing</a>
+      <a href="#portfolio" data-page="portfolio">Portfolio</a>
+      <a href="#order" data-page="order">Order Now</a>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <a href="#faq" data-page="faq">FAQ</a>
+      <a href="#contact" data-page="contact">Contact</a>
+      <a href="javascript:void(0)">Privacy Policy</a>
+      <a href="javascript:void(0)">Terms &amp; Conditions</a>
+    </div>
+  </div>
+  <div class="footer-bottom"><p>&copy; 2026 Raj Studio. All Rights Reserved.</p></div>
+</footer>
+
+<button id="backToTop" class="back-to-top" aria-label="Back to top">&uarr;</button>
+
+<!-- ============ BOTTOM NAV (mobile) ============ -->
+<nav class="bottom-nav" id="bottomNav" aria-label="Mobile navigation">
+  <div class="bottom-nav-inner">
+    <a href="#home" class="bottom-nav-item active" data-bottom-nav data-page="home">
+      <svg viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
+      <span>Home</span>
+    </a>
+    <a href="#services" class="bottom-nav-item" data-bottom-nav data-page="services">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <span>Services</span>
+    </a>
+    <a href="#order" class="bottom-nav-item nav-order" data-bottom-nav data-page="order">
+      <svg viewBox="0 0 24 24"><path d="M12 5v14m-7-7h14"/></svg>
+      <span>Order</span>
+    </a>
+    <a href="#portfolio" class="bottom-nav-item" data-bottom-nav data-page="portfolio">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+      <span>Portfolio</span>
+    </a>
+    <a href="#contact" class="bottom-nav-item" data-bottom-nav data-page="contact">
+      <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+      <span>Contact</span>
+    </a>
+  </div>
+</nav>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  /* ---------------- Loader ---------------- */
+  const loader = document.getElementById("loader");
+  const hasLoaded = sessionStorage.getItem("ts-loaded");
+  if (hasLoaded){
+    loader.classList.add("hidden");
+  } else {
+    window.addEventListener("load", () => {
+      setTimeout(() => { loader.classList.add("hidden"); sessionStorage.setItem("ts-loaded","1"); }, 1400);
+    });
+    setTimeout(() => { loader.classList.add("hidden"); sessionStorage.setItem("ts-loaded","1"); }, 2600);
+  }
+
+  /* ---------------- Theme toggle ---------------- */
+  const root = document.body;
+  const themeToggle = document.getElementById("themeToggle");
+  function getStoredTheme(){ try { return localStorage.getItem("ts-theme"); } catch(e){ return null; } }
+  function setTheme(t){
+    root.setAttribute("data-theme", t);
+    try { localStorage.setItem("ts-theme", t); } catch(e){}
+    document.querySelector('meta[name="theme-color"]').setAttribute("content", t === "dark" ? "#150B18" : "#FBF4E7");
+  }
+  const saved = getStoredTheme();
+  if (saved) setTheme(saved);
+  themeToggle.addEventListener("click", () => {
+    setTheme(root.getAttribute("data-theme") === "dark" ? "light" : "dark");
+  });
+
+  /* ---------------- Navbar scroll state ---------------- */
+  const navbar = document.getElementById("navbar");
+  const backToTop = document.getElementById("backToTop");
+  window.addEventListener("scroll", () => {
+    navbar.classList.toggle("scrolled", window.scrollY > 40);
+    backToTop.classList.toggle("show", window.scrollY > 500);
+  });
+  backToTop.addEventListener("click", () => window.scrollTo({top:0, behavior:"smooth"}));
+
+  /* ---------------- Mobile menu ---------------- */
+  const menuToggle = document.getElementById("menuToggle");
+  const navLinksEl = document.getElementById("navLinks");
+  menuToggle.addEventListener("click", () => {
+    const open = navLinksEl.classList.toggle("open");
+    menuToggle.classList.toggle("open", open);
+    menuToggle.setAttribute("aria-expanded", open);
+  });
+  document.querySelectorAll("[data-nav]").forEach(a => a.addEventListener("click", () => {
+    navLinksEl.classList.remove("open"); menuToggle.classList.remove("open");
+  }));
+
+  /* ---------------- Counters ---------------- */
+  const counters = document.querySelectorAll(".stat-num");
+  const counterObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting){ animateCounter(entry.target); counterObserver.unobserve(entry.target); }
+    });
+  }, { threshold: 0.5 });
+  counters.forEach(c => counterObserver.observe(c));
+  function animateCounter(el){
+    const target = parseInt(el.dataset.count, 10);
+    const duration = 1500; const start = performance.now();
+    function tick(now){
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      el.textContent = Math.round(eased * target);
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  /* ---------------- Page router (each nav item is a real "page") ---------------- */
+  const pages = document.querySelectorAll(".page");
+  const navAnchors = document.querySelectorAll("[data-nav]");
+  const validPages = new Set([...pages].map(p => p.id));
+
+  const bottomNavItems = document.querySelectorAll("[data-bottom-nav]");
+  function setActiveNav(pageId){
+    navAnchors.forEach(a => a.classList.toggle("active", a.dataset.page === pageId));
+    bottomNavItems.forEach(a => a.classList.toggle("active", a.dataset.page === pageId));
+  }
+
+  function replayReveals(container){
+    const els = container.querySelectorAll(".reveal-up");
+    els.forEach((el,i) => {
+      el.classList.remove("in-view");
+      requestAnimationFrame(() => {
+        setTimeout(() => el.classList.add("in-view"), 30 + Math.min(i,10)*40);
+      });
+    });
+  }
+
+  function showPage(pageId, opts={}){
+    const id = validPages.has(pageId) ? pageId : "home";
+    pages.forEach(p => p.classList.remove("active-page"));
+    const target = document.getElementById(id);
+    target.classList.add("active-page");
+    setActiveNav(id);
+    window.scrollTo({ top: 0, behavior: opts.instant ? "auto" : "smooth" });
+    replayReveals(target);
+    if (id === "home"){
+      counters.forEach(c => { c.textContent = "0"; });
+      setTimeout(() => counters.forEach(c => animateCounter(c)), 250);
+    }
+    document.title = id === "home"
+      ? "IS Digital Platform — Invitations, Carved in Light"
+      : "IS Digital Platform — " + id.charAt(0).toUpperCase() + id.slice(1);
+  }
+
+  function navigateTo(pageId){
+    if (("#" + pageId) === location.hash) showPage(pageId);
+    else location.hash = pageId;
+  }
+
+  document.addEventListener("click", (e) => {
+    const link = e.target.closest("[data-page]");
+    if (!link) return;
+    e.preventDefault();
+    navigateTo(link.dataset.page);
+    navLinksEl.classList.remove("open");
+    menuToggle.classList.remove("open");
+  });
+
+  window.addEventListener("hashchange", () => {
+    showPage(location.hash.replace("#","") || "home");
+  });
+
+  showPage(location.hash.replace("#","") || "home", { instant:true });
+
+  /* ---------------- Reveal on scroll ---------------- */
+  function observeReveal(){
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => { if (entry.isIntersecting){ entry.target.classList.add("in-view"); revealObserver.unobserve(entry.target); } });
+    }, { threshold: 0.14 });
+    document.querySelectorAll(".reveal-up:not(.in-view)").forEach(el => revealObserver.observe(el));
+  }
+  observeReveal();
+
+  /* ---------------- Toasts ---------------- */
+  function showToast(message, type="success"){
+    const container = document.getElementById("toastContainer");
+    const toast = document.createElement("div");
+    toast.className = "toast" + (type === "error" ? " error" : "");
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(() => { toast.classList.add("out"); setTimeout(() => toast.remove(), 300); }, 3200);
+  }
+
+  /* ---------------- Services data ---------------- */
+  const services = [
+    { icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12l2 6-8 14L4 8l2-6z"/><path d="M4 8h16"/><path d="M12 22V8"/></svg>`, title:"Wedding Invitation", desc:"Elegant, tradition-rich layouts for the big day." },
+    { icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6c-2-4-7-4-7 0 0 3 7 8 7 8s7-5 7-8c0-4-5-4-7 0z"/><path d="M5 18h14"/></svg>`, title:"Engagement Invitation", desc:"Romantic designs to announce your promise." },
+    { icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a8 8 0 0 0-8 8c0 4 3 8 8 14 5-6 8-10 8-14a8 8 0 0 0-8-8z"/><circle cx="12" cy="8" r="1.5"/></svg>`, title:"Birthday Invitation", desc:"Playful or elegant, for every age and theme." },
+    { icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 22V8l3-4 3 4v14"/><path d="M6 22h12"/><path d="M7 12h10"/></svg>`, title:"Anniversary Invitation", desc:"Celebrate milestones with timeless designs." },
+    { icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v12H4z"/><path d="M8 22h8"/><path d="M12 16v6"/></svg>`, title:"Baby Shower Invitation", desc:"Soft, joyful cards to welcome the little one." },
+    { icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-7 9 7v11H3z"/><path d="M9 21V12h6v9"/></svg>`, title:"Housewarming Invitation", desc:"Warm, welcoming invites for your new home." },
+    { icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/></svg>`, title:"Naming Ceremony", desc:"Culturally rooted designs for the naming day." },
+    { icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="6" height="20" rx="1"/><rect x="14" y="4" width="6" height="18" rx="1"/></svg>`, title:"Corporate Invitation", desc:"Polished, professional invites for business events." },
+    { icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a8 8 0 0 0-8 8c0 5 4 10 8 12 4-2 8-7 8-12a8 8 0 0 0-8-8z"/><path d="M8 9h8"/></svg>`, title:"Festival Invitation", desc:"Vibrant designs for festive gatherings." },
+    { icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`, title:"Website Invitation", desc:"A full invitation website with RSVP &amp; countdown." },
+    { icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>`, title:"Animated Video Invitation", desc:"Short animated videos, ready for WhatsApp." },
+    { icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c.5 3 2.5 5 5 6-2.5 1-4.5 3-5 6-.5-3-2.5-5-5-6 2.5-1 4.5-3 5-6z"/></svg>`, title:"Custom Invitation", desc:"Something one-of-a-kind, designed around your idea." },
+  ];
+  const servicesGrid = document.getElementById("servicesGrid");
+  servicesGrid.innerHTML = services.map((s,i) => `
+    <div class="service-card glass reveal-up" style="transition-delay:${(i%4)*0.06}s">
+      <div class="service-icon">${s.icon}</div>
+      <h3>${s.title}</h3>
+      <p>${s.desc}</p>
+      <button class="service-choose" data-service="${s.title}" type="button">Choose This</button>
+    </div>
+  `).join("");
+  observeReveal();
+
+  document.querySelectorAll(".service-choose").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const service = btn.dataset.service;
+      const map = {Wedding:"Wedding",Engagement:"Engagement",Birthday:"Birthday",Anniversary:"Anniversary","Baby Shower":"Baby Shower",Housewarming:"Housewarming","Naming Ceremony":"Naming Ceremony",Corporate:"Corporate Event",Festival:"Festival"};
+      for (const key in map){
+        if (service.includes(key) && window.setEventType){ window.setEventType(map[key]); break; }
+      }
+      showToast(`Let's create your ${service}!`);
+      navigateTo("order");
+    });
+  });
+
+  /* ---------------- Pricing data ---------------- */
+  const plans = [
+    { key:"basic", name:"Basic Plan", price:"249", popular:false, items:["One Digital Invitation","JPG &amp; PNG format","One Theme","One Revision","Delivery within 24 Hours"] },
+    { key:"premium", name:"Premium Plan", price:"499", popular:true, items:["Custom Design","Multiple Theme Options","Unlimited Text Changes","QR Code","WhatsApp &amp; Instagram Sizes","Two Revisions"] },
+    { key:"animated", name:"Animated Invitation", price:"999", popular:false, items:["15–30 Second Video","Background Music","Animation","HD Quality","WhatsApp Ready"] },
+    { key:"website", name:"Luxury Website Invitation", price:"2999", popular:false, items:["Personal Invitation Website","Countdown Timer","RSVP Form","Photo Gallery","Google Maps","Mobile Friendly"] },
+  ];
+  const pricingGrid = document.getElementById("pricingGrid");
+  pricingGrid.innerHTML = plans.map((p,i) => `
+    <div class="price-card glass reveal-up ${p.popular ? "popular" : ""}" style="transition-delay:${i*0.07}s">
+      ${p.popular ? '<span class="popular-badge">Most Popular</span>' : ""}
+      <p class="price-plan">${p.name}</p>
+      <p class="price-amount"><sup>₹</sup>${p.price}</p>
+      <ul class="price-list">${p.items.map(it => `<li>${it}</li>`).join("")}</ul>
+      <a href="#order" class="choose-plan" data-plan-key="${p.key}" data-plan="${p.name} - ₹${p.price}">Choose Plan</a>
+    </div>
+  `).join("");
+  observeReveal();
+
+  document.querySelectorAll(".choose-plan").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      showToast(`${btn.dataset.plan} selected!`);
+      const radio = document.querySelector(`input[name="package"][value="${btn.dataset.planKey}"]`);
+      if (radio) radio.checked = true;
+      navigateTo("order");
+      updatePlanBlocks();
+    });
+  });
+
+  /* ---------------- Extras ---------------- */
+  const extras = [
+    { name:"QR Code", price:"₹100" }, { name:"Extra Revision", price:"₹100" },
+    { name:"Same Day Delivery", price:"₹300" }, { name:"Extra Language", price:"₹200" },
+    { name:"Custom Domain", price:"₹500+" }, { name:"Website Hosting", price:"₹1000+" },
+  ];
+  document.getElementById("extrasGrid").innerHTML = extras.map((e,i) => `
+    <div class="extra-card glass reveal-up" style="transition-delay:${(i%3)*0.06}s"><span>${e.name}</span><span>${e.price}</span></div>
+  `).join("");
+  observeReveal();
+
+
+  /* ============================================================
+     CUSTOM EVENT-DETAILS WIDGETS
+     (Type of Event dropdown, Event Date calendar, Event Time dial)
+     ============================================================ */
+  const tsAllTriggers = [];
+  function tsCloseAllPanels(except){
+    tsAllTriggers.forEach(({trigger, panel}) => {
+      if (panel === except) return;
+      panel.classList.remove("open");
+      trigger.classList.remove("open");
+      trigger.setAttribute("aria-expanded","false");
+    });
+  }
+  document.addEventListener("click", (e) => {
+    tsAllTriggers.forEach(({trigger, panel, root}) => {
+      if (!root.contains(e.target)){
+        panel.classList.remove("open");
+        trigger.classList.remove("open");
+        trigger.setAttribute("aria-expanded","false");
+      }
+    });
+  });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") tsCloseAllPanels(null); });
+
+  /* ---- 1. Type of Event — custom select ---- */
+  const eventOptions = [
+    { label:"Wedding", color:"var(--maroon)" },
+    { label:"Engagement", color:"var(--rose)" },
+    { label:"Birthday", color:"var(--gold)" },
+    { label:"Anniversary", color:"var(--saffron)" },
+    { label:"Baby Shower", color:"var(--teal)" },
+    { label:"Housewarming", color:"var(--gold-light)" },
+    { label:"Naming Ceremony", color:"var(--maroon-deep)" },
+    { label:"Corporate Event", color:"var(--teal)" },
+    { label:"Festival", color:"var(--saffron)" },
+    { label:"Custom", color:"var(--rose)" },
+  ];
+  const selectRoot = document.getElementById("eventTypeSelect");
+  const selectTrigger = document.getElementById("eventTypeTrigger");
+  const selectPanel = document.getElementById("eventTypePanel");
+  const selectValueEl = document.getElementById("eventTypeValue");
+  const selectHidden = document.getElementById("eventType");
+
+  selectPanel.innerHTML = eventOptions.map(o => `
+    <li class="ts-option" role="option" data-value="${o.label}" tabindex="-1">
+      <span class="ts-option-dot" style="background:${o.color}"></span>
+      <span>${o.label}</span>
+      <svg class="ts-option-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+    </li>
+  `).join("");
+
+  /* ---- Dynamic "Invitation Details" form per event type ----
+     Note: "Wedding" is intentionally excluded here — its details are
+     collected per-ceremony via the Wedding Ceremonies tile grid above. */
+  const invitationFieldConfigs = {
+    "Engagement": [
+      { id:"iq_partner1", label:"Partner 1's Name", type:"text", required:true },
+      { id:"iq_partner2", label:"Partner 2's Name", type:"text", required:true },
+      { id:"iq_ringTime", label:"Ring Ceremony Time", type:"text", placeholder:"e.g. 6:00 PM" },
+      { id:"iq_message", label:"Special Message for the Card", type:"textarea", full:true },
+    ],
+    "Birthday": [
+      { id:"iq_celebrant", label:"Celebrant's Name", type:"text", required:true },
+      { id:"iq_age", label:"Turning Age", type:"text", placeholder:"e.g. 25" },
+      { id:"iq_theme", label:"Party Theme", type:"text", placeholder:"e.g. Superheroes, Princess, Neon" },
+      { id:"iq_message", label:"Special Message for the Card", type:"textarea", full:true },
+    ],
+    "Anniversary": [
+      { id:"iq_coupleNames", label:"Couple's Names", type:"text", required:true },
+      { id:"iq_years", label:"Years Completed", type:"text", placeholder:"e.g. 25th Anniversary" },
+      { id:"iq_message", label:"Special Message for the Card", type:"textarea", full:true },
+    ],
+    "Baby Shower": [
+      { id:"iq_parents", label:"Parents' Names", type:"text", required:true },
+      { id:"iq_babyName", label:"Baby's Name (if decided)", type:"text" },
+      { id:"iq_reveal", label:"Reveal Theme", type:"select", options:["Boy","Girl","Surprise / Not Revealing"] },
+      { id:"iq_message", label:"Special Message for the Card", type:"textarea", full:true },
+    ],
+    "Housewarming": [
+      { id:"iq_family", label:"Family Name", type:"text", required:true },
+      { id:"iq_poojaTime", label:"Griha Pravesh / Pooja Time", type:"text", placeholder:"e.g. 10:00 AM" },
+      { id:"iq_message", label:"Special Message for the Card", type:"textarea", full:true },
+    ],
+    "Naming Ceremony": [
+      { id:"iq_babyName2", label:"Baby's Name", type:"text", required:true },
+      { id:"iq_parents2", label:"Parents' Names", type:"text", required:true },
+      { id:"iq_ceremonyTime", label:"Naming Ceremony Time", type:"text" },
+      { id:"iq_message", label:"Special Message for the Card", type:"textarea", full:true },
+    ],
+    "Corporate Event": [
+      { id:"iq_company", label:"Company Name", type:"text", required:true },
+      { id:"iq_purpose", label:"Event Purpose", type:"text", placeholder:"e.g. Annual Meet, Product Launch" },
+      { id:"iq_dressCode", label:"Dress Code (optional)", type:"text" },
+      { id:"iq_message", label:"Special Message for the Card", type:"textarea", full:true },
+    ],
+    "Festival": [
+      { id:"iq_festivalName", label:"Festival Name", type:"text", required:true, placeholder:"e.g. Diwali, Navratri" },
+      { id:"iq_message", label:"Special Message for the Card", type:"textarea", full:true },
+    ],
+    "Custom": [
+      { id:"iq_customDesc", label:"Describe Your Event & What You'd Like on the Card", type:"textarea", full:true, required:true },
+    ],
+  };
+
+  const eventQuestionsBlock = document.getElementById("eventQuestionsBlock");
+  const eventQuestionsContent = document.getElementById("eventQuestionsContent");
+  const eventQuestionsTitle = document.getElementById("eventQuestionsTitle");
+  const eventQuestionsHint = document.getElementById("eventQuestionsHint");
+
+  function fieldHTML(f){
+    const reqMark = f.required ? ` <span style="color:#D5573B">*</span>` : "";
+    const reqAttr = f.required ? "required" : "";
+    const wrapClass = f.full ? "field full" : "field";
+    if (f.type === "textarea"){
+      return `<div class="${wrapClass}">
+        <label for="${f.id}">${f.label}${reqMark}</label>
+        <textarea id="${f.id}" name="${f.id}" rows="4" placeholder="${f.placeholder||""}" ${reqAttr}></textarea>
+        <span class="error-msg">This field helps us design your card — please fill it in</span>
+      </div>`;
+    }
+    if (f.type === "select"){
+      return `<div class="${wrapClass}">
+        <label for="${f.id}">${f.label}${reqMark}</label>
+        <select id="${f.id}" name="${f.id}" ${reqAttr}>
+          <option value="">Choose one</option>
+          ${f.options.map(o => `<option>${o}</option>`).join("")}
+        </select>
+        <span class="error-msg">Please choose an option</span>
+      </div>`;
+    }
+    return `<div class="${wrapClass}">
+      <label for="${f.id}">${f.label}${reqMark}</label>
+      <input type="text" id="${f.id}" name="${f.id}" placeholder="${f.placeholder||""}" ${reqAttr}>
+      <span class="error-msg">Please fill in this field</span>
+    </div>`;
+  }
+
+  function renderInvitationFields(eventType, functionLabel){
+    const config = invitationFieldConfigs[eventType];
+    if (!config){
+      eventQuestionsBlock.style.display = "none";
+      eventQuestionsContent.innerHTML = "";
+      return;
+    }
+    eventQuestionsTitle.textContent = "Invitation Details — " + eventType;
+    eventQuestionsHint.textContent = functionLabel
+      ? `Tell us what should appear on the card for your ${functionLabel} ceremony.`
+      : "Tell us what should appear on the card for this occasion.";
+
+    let html = `<div class="field-row">`;
+    let openRow = true;
+    config.forEach(f => {
+      if (f.full){
+        if (openRow){ html += `</div>`; openRow = false; }
+        html += fieldHTML(f);
+      } else {
+        if (!openRow){ html += `<div class="field-row">`; openRow = true; }
+        html += fieldHTML(f);
+      }
+    });
+    if (openRow) html += `</div>`;
+    eventQuestionsContent.innerHTML = html;
+    eventQuestionsBlock.style.display = "";
+    eventQuestionsBlock.classList.remove("invalid");
+    if (typeof updateProgress === "function") updateProgress();
+  }
+
+  function setEventType(label){
+    selectHidden.value = label || "";
+    if (label){
+      selectValueEl.textContent = label;
+      selectValueEl.classList.remove("placeholder");
+    } else {
+      selectValueEl.textContent = "Select event type";
+      selectValueEl.classList.add("placeholder");
+    }
+    selectPanel.querySelectorAll(".ts-option").forEach(li => li.classList.toggle("selected", li.dataset.value === label));
+    selectRoot.closest(".field").classList.remove("invalid");
+
+    const ceremoniesSection = document.getElementById("weddingCeremoniesSection");
+    if (label === "Wedding"){
+      ceremoniesSection.style.display = "";
+    } else {
+      ceremoniesSection.style.display = "none";
+      if (window.resetCeremonies) window.resetCeremonies();
+    }
+    renderInvitationFields(label, "");
+
+    const restOfForm = document.getElementById("restOfForm");
+    const pendingHint = document.getElementById("pendingHint");
+    if (label){
+      restOfForm.style.display = "";
+      pendingHint.style.display = "none";
+    } else {
+      restOfForm.style.display = "none";
+      pendingHint.style.display = "";
+    }
+  }
+  window.setEventType = setEventType;
+
+  selectTrigger.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const isOpen = selectPanel.classList.contains("open");
+    tsCloseAllPanels(isOpen ? null : selectPanel);
+    selectPanel.classList.toggle("open", !isOpen);
+    selectTrigger.classList.toggle("open", !isOpen);
+    selectTrigger.setAttribute("aria-expanded", String(!isOpen));
+  });
+  selectPanel.addEventListener("click", (e) => {
+    const li = e.target.closest(".ts-option");
+    if (!li) return;
+    setEventType(li.dataset.value);
+    selectPanel.classList.remove("open");
+    selectTrigger.classList.remove("open");
+    selectTrigger.setAttribute("aria-expanded","false");
+  });
+  tsAllTriggers.push({ trigger:selectTrigger, panel:selectPanel, root:selectRoot });
+
+  /* ---- 1b. Wedding Ceremonies — multi-select checkbox tiles, each expanding
+     inline (no page reload) into its own mini detail form ---- */
+  const ceremonyDefs = [
+    { key:"haldi", label:"Haldi" },
+    { key:"engagement", label:"Engagement" },
+    { key:"other", label:"Other" },
+    { key:"mehendi", label:"Mehendi" },
+    { key:"weddingMain", label:"Wedding (Main)" },
+    { key:"sangeet", label:"Sangeet" },
+    { key:"reception", label:"Reception" },
+  ];
+  const ceremonyGrid = document.getElementById("ceremonyGrid");
+  const selectedCeremoniesHidden = document.getElementById("selectedCeremonies");
+
+  ceremonyGrid.innerHTML = ceremonyDefs.map(c => `
+    <div class="ceremony-tile" data-key="${c.key}">
+      <button type="button" class="ceremony-header" aria-expanded="false">
+        <span class="ceremony-checkbox" aria-hidden="true"></span>
+        <span class="ceremony-label">${c.label}</span>
+        <svg class="ceremony-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="ceremony-detail">
+        ${c.key === "other" ? `<div class="field"><label>Ceremony Name</label><input type="text" data-field="name" placeholder="e.g. Griha Shanti"></div>` : ``}
+        <div class="field-row">
+          <div class="field"><label>Date</label><input type="date" data-field="date"></div>
+          <div class="field"><label>Time</label><input type="time" data-field="time"></div>
+        </div>
+        <div class="field"><label>Venue</label><input type="text" data-field="venue" placeholder="Same as main venue, or different"></div>
+        <div class="field full"><label>Note for the Card</label><textarea rows="3" data-field="note" placeholder="Anything you'd like added for this ceremony..."></textarea></div>
+      </div>
+    </div>
+  `).join("");
+
+  function updateSelectedCeremonies(){
+    const selected = [...ceremonyGrid.querySelectorAll(".ceremony-tile.checked")].map(t => t.dataset.key);
+    selectedCeremoniesHidden.value = selected.join(",");
+  }
+
+  function toggleCeremony(tile, forceState){
+    const isChecked = tile.classList.contains("checked");
+    const nextState = forceState !== undefined ? forceState : !isChecked;
+    tile.classList.toggle("checked", nextState);
+    tile.classList.toggle("expanded", nextState);
+    tile.querySelector(".ceremony-header").setAttribute("aria-expanded", String(nextState));
+    if (!nextState){
+      tile.querySelectorAll(".ceremony-detail [data-field]").forEach(inp => { inp.value = ""; });
+    }
+    updateSelectedCeremonies();
+  }
+
+  ceremonyGrid.addEventListener("click", (e) => {
+    const header = e.target.closest(".ceremony-header");
+    if (!header) return;
+    toggleCeremony(header.closest(".ceremony-tile"));
+  });
+
+  window.resetCeremonies = function(){
+    ceremonyGrid.querySelectorAll(".ceremony-tile.checked").forEach(tile => toggleCeremony(tile, false));
+  };
+
+  /* ---- 2. Event Date — custom calendar ---- */
+  const dateRoot = document.getElementById("eventDateWidget");
+  const dateTrigger = document.getElementById("eventDateTrigger");
+  const datePanel = document.getElementById("eventDatePanel");
+  const dateValueEl = document.getElementById("eventDateValue");
+  const dateHidden = document.getElementById("eventDate");
+  const calTitle = document.getElementById("calTitle");
+  const calGrid = document.getElementById("calGrid");
+  const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const tsToday = new Date(); tsToday.setHours(0,0,0,0);
+  let viewYear = tsToday.getFullYear();
+  let viewMonth = tsToday.getMonth();
+  let selectedDate = null;
+
+  function fmtISO(d){ return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0"); }
+  function fmtDisplay(d){ return d.getDate() + " " + monthNames[d.getMonth()].slice(0,3) + " " + d.getFullYear(); }
+
+  function renderCalendar(){
+    calTitle.textContent = monthNames[viewMonth] + " " + viewYear;
+    const firstDay = new Date(viewYear, viewMonth, 1).getDay();
+    const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+    let html = "";
+    for (let i=0; i<firstDay; i++) html += `<span class="ts-day pad"></span>`;
+    for (let d=1; d<=daysInMonth; d++){
+      const cellDate = new Date(viewYear, viewMonth, d);
+      const isPast = cellDate < tsToday;
+      const isToday = cellDate.getTime() === tsToday.getTime();
+      const isSelected = selectedDate && cellDate.getTime() === selectedDate.getTime();
+      html += `<button type="button" class="ts-day ${isPast?"disabled":""} ${isToday?"today":""} ${isSelected?"selected":""}" data-date="${fmtISO(cellDate)}" ${isPast?"disabled":""}>${d}</button>`;
+    }
+    calGrid.innerHTML = html;
+  }
+  renderCalendar();
+
+  document.getElementById("calPrev").addEventListener("click", (e) => {
+    e.stopPropagation();
+    viewMonth--; if (viewMonth < 0){ viewMonth = 11; viewYear--; }
+    renderCalendar();
+  });
+  document.getElementById("calNext").addEventListener("click", (e) => {
+    e.stopPropagation();
+    viewMonth++; if (viewMonth > 11){ viewMonth = 0; viewYear++; }
+    renderCalendar();
+  });
+  document.getElementById("calToday").addEventListener("click", (e) => {
+    e.stopPropagation();
+    viewYear = tsToday.getFullYear(); viewMonth = tsToday.getMonth();
+    selectDate(tsToday);
+  });
+  document.getElementById("calClear").addEventListener("click", (e) => {
+    e.stopPropagation();
+    selectedDate = null;
+    dateHidden.value = "";
+    dateValueEl.textContent = "Choose a date";
+    dateValueEl.classList.add("placeholder");
+    renderCalendar();
+  });
+
+  function selectDate(d){
+    selectedDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    dateHidden.value = fmtISO(selectedDate);
+    dateValueEl.textContent = fmtDisplay(selectedDate);
+    dateValueEl.classList.remove("placeholder");
+    dateRoot.closest(".field").classList.remove("invalid");
+    renderCalendar();
+    datePanel.classList.remove("open");
+    dateTrigger.classList.remove("open");
+    dateTrigger.setAttribute("aria-expanded","false");
+  }
+  calGrid.addEventListener("click", (e) => {
+    const btn = e.target.closest(".ts-day");
+    if (!btn || btn.disabled || btn.classList.contains("pad")) return;
+    const [y,m,d] = btn.dataset.date.split("-").map(Number);
+    selectDate(new Date(y, m-1, d));
+  });
+  dateTrigger.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const isOpen = datePanel.classList.contains("open");
+    tsCloseAllPanels(isOpen ? null : datePanel);
+    if (!isOpen && selectedDate){ viewYear = selectedDate.getFullYear(); viewMonth = selectedDate.getMonth(); renderCalendar(); }
+    datePanel.classList.toggle("open", !isOpen);
+    dateTrigger.classList.toggle("open", !isOpen);
+    dateTrigger.setAttribute("aria-expanded", String(!isOpen));
+  });
+  tsAllTriggers.push({ trigger:dateTrigger, panel:datePanel, root:dateRoot });
+
+  /* ---- 3. Event Time — sundial dial picker ---- */
+  const timeRoot = document.getElementById("eventTimeWidget");
+  const timeTrigger = document.getElementById("eventTimeTrigger");
+  const timePanel = document.getElementById("eventTimePanel");
+  const timeValueEl = document.getElementById("eventTimeValue");
+  const timeHidden = document.getElementById("eventTime");
+  const dial = document.getElementById("tsDial");
+  const dialCenter = document.getElementById("dialCenterLabel");
+  let selHour = null, selMinute = null, selPeriod = null;
+
+  const dialRadius = 78;
+  for (let h=1; h<=12; h++){
+    const angle = (h/12) * 2*Math.PI - Math.PI/2;
+    const x = Math.cos(angle) * dialRadius;
+    const y = Math.sin(angle) * dialRadius;
+    const tick = document.createElement("button");
+    tick.type = "button";
+    tick.className = "ts-dial-tick";
+    tick.textContent = h;
+    tick.dataset.hour = h;
+    tick.style.transform = `translate(${x}px, ${y}px)`;
+    dial.appendChild(tick);
+  }
+  function updateCenterLabel(){
+    const h = selHour ? String(selHour).padStart(2,"0") : "--";
+    const m = selMinute !== null ? selMinute : "--";
+    dialCenter.textContent = h + ":" + m;
+  }
+  dial.addEventListener("click", (e) => {
+    const tick = e.target.closest(".ts-dial-tick");
+    if (!tick) return;
+    selHour = parseInt(tick.dataset.hour, 10);
+    dial.querySelectorAll(".ts-dial-tick").forEach(t => t.classList.toggle("selected", t === tick));
+    updateCenterLabel();
+  });
+  document.getElementById("tsMinutes").addEventListener("click", (e) => {
+    const btn = e.target.closest(".ts-pill-btn");
+    if (!btn) return;
+    selMinute = btn.dataset.min;
+    btn.parentElement.querySelectorAll(".ts-pill-btn").forEach(b => b.classList.toggle("selected", b === btn));
+    updateCenterLabel();
+  });
+  document.querySelector("#eventTimePanel .ts-ampm").addEventListener("click", (e) => {
+    const btn = e.target.closest(".ts-pill-btn");
+    if (!btn) return;
+    selPeriod = btn.dataset.period;
+    btn.parentElement.querySelectorAll(".ts-pill-btn").forEach(b => b.classList.toggle("selected", b === btn));
+  });
+  document.getElementById("timeDone").addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (!selHour || selMinute === null || !selPeriod){ showToast("Pick an hour, minute and AM/PM"); return; }
+    let h24 = selHour % 12;
+    if (selPeriod === "PM") h24 += 12;
+    timeHidden.value = String(h24).padStart(2,"0") + ":" + selMinute;
+    timeValueEl.textContent = String(selHour).padStart(2,"0") + ":" + selMinute + " " + selPeriod;
+    timeValueEl.classList.remove("placeholder");
+    timePanel.classList.remove("open");
+    timeTrigger.classList.remove("open");
+    timeTrigger.setAttribute("aria-expanded","false");
+  });
+  timeTrigger.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const isOpen = timePanel.classList.contains("open");
+    tsCloseAllPanels(isOpen ? null : timePanel);
+    timePanel.classList.toggle("open", !isOpen);
+    timeTrigger.classList.toggle("open", !isOpen);
+    timeTrigger.setAttribute("aria-expanded", String(!isOpen));
+  });
+  tsAllTriggers.push({ trigger:timeTrigger, panel:timePanel, root:timeRoot });
+
+  /* ---------------- Order form: package pills ---------------- */
+  const packageChoices = document.getElementById("packageChoices");
+  packageChoices.innerHTML = plans.map(p => `
+    <label class="package-pill">
+      <input type="radio" name="package" value="${p.key}">
+      <span class="p-name">${p.name}</span>
+      <span class="p-price">₹${p.price}</span>
+    </label>
+  `).join("");
+
+  const orderForm = document.getElementById("orderForm");
+  function updatePlanBlocks(){
+    const checked = orderForm.querySelector('[name="package"]:checked');
+    const plan = checked ? checked.value : null;
+    orderForm.querySelectorAll(".form-block[data-plans]").forEach(block => {
+      const list = block.dataset.plans.split(" ");
+      block.style.display = (plan && list.includes(plan)) ? "" : "none";
+    });
+  }
+  packageChoices.addEventListener("change", updatePlanBlocks);
+  updatePlanBlocks();
+
+  /* ---------------- Progress bar ---------------- */
+  const progressFill = document.getElementById("progressFill");
+  function updateProgress(){
+    const required = orderForm.querySelectorAll("[required]");
+    let filled = 0;
+    required.forEach(f => {
+      if (f.type === "radio"){ if (orderForm.querySelector(`[name="${f.name}"]:checked`)) filled++; }
+      else if (f.type === "checkbox"){ if (f.checked) filled++; }
+      else if (f.value.trim()) filled++;
+    });
+    const pct = required.length ? Math.round((filled / required.length) * 100) : 0;
+    progressFill.style.width = pct + "%";
+  }
+  orderForm.addEventListener("input", updateProgress);
+  orderForm.addEventListener("change", updateProgress);
+  updateProgress();
+
+  /* ---------------- Colour picker (individual swatches + curated palettes) ---------------- */
+  const individualColors = [
+    { name:"Gold", hex:"#C89B3C" }, { name:"Antique Gold", hex:"#B08A3E" }, { name:"Champagne", hex:"#E8C77E" },
+    { name:"Maroon", hex:"#7A2440" }, { name:"Wine", hex:"#4A1229" }, { name:"Burgundy", hex:"#6E1423" },
+    { name:"Rose", hex:"#C6708A" }, { name:"Blush", hex:"#F2C9D0", light:true }, { name:"Coral", hex:"#E8785A" },
+    { name:"Teal", hex:"#1F6F64" }, { name:"Emerald", hex:"#1E5631" }, { name:"Sage", hex:"#8A9B6E" }, { name:"Mint", hex:"#A9CBB7", light:true },
+    { name:"Saffron", hex:"#D9772A" }, { name:"Terracotta", hex:"#B85C38" }, { name:"Mustard", hex:"#D4A72C" },
+    { name:"Royal Blue", hex:"#1B3B6F" }, { name:"Peacock Blue", hex:"#0F5C6B" }, { name:"Purple", hex:"#5B3260" }, { name:"Lavender", hex:"#B79FCB", light:true },
+    { name:"Ivory", hex:"#F6EDE0", light:true }, { name:"Sand", hex:"#E4D3B5", light:true }, { name:"Charcoal", hex:"#2B2530" }, { name:"Night", hex:"#150B18" }, { name:"Silver", hex:"#B8B8B8", light:true },
+  ];
+
+  const curatedPalettes = [
+    { name:"Royal Gold & Maroon", colors:["#C89B3C","#7A2440","#4A1229","#E8C77E"] },
+    { name:"Peacock Jewel Tones", colors:["#1F6F64","#0F5C6B","#1B3B6F","#C89B3C"] },
+    { name:"Floral Blush", colors:["#C6708A","#F2C9D0","#F6EDE0","#D9772A"] },
+    { name:"Traditional Red & Gold", colors:["#6E1423","#C89B3C","#F6EDE0","#4A1229"] },
+    { name:"Monsoon Teal & Ivory", colors:["#1F6F64","#F6EDE0","#C89B3C","#2B2530"] },
+    { name:"Modern Minimal", colors:["#150B18","#C89B3C","#F6EDE0","#B8B8B8"] },
+    { name:"Sunset Saffron", colors:["#D9772A","#B85C38","#D4A72C","#4A1229"] },
+    { name:"Lavender Dusk", colors:["#5B3260","#B79FCB","#F6EDE0","#C6708A"] },
+  ];
+
+  const colorPicker = document.getElementById("colorPicker");
+  const paletteGrid = document.getElementById("paletteGrid");
+  const colorInput = document.getElementById("colors");
+  const colorSelected = document.getElementById("colorSelected");
+  let selectedColors = [];
+  let activePaletteName = "";
+
+  colorPicker.innerHTML = individualColors.map(c => `
+    <button type="button" class="color-swatch${c.light ? " light-swatch" : ""}" data-color="${c.hex}" style="background:${c.hex}" title="${c.name}" aria-label="${c.name}"></button>
+  `).join("");
+
+  paletteGrid.innerHTML = curatedPalettes.map(p => `
+    <button type="button" class="palette-card" data-palette="${p.name}">
+      <span class="palette-strip">${p.colors.map(c => `<span style="background:${c}"></span>`).join("")}</span>
+      <span class="palette-name">${p.name}</span>
+    </button>
+  `).join("");
+
+  function syncSwatchUI(){
+    colorPicker.querySelectorAll(".color-swatch").forEach(sw => {
+      sw.classList.toggle("selected", selectedColors.includes(sw.dataset.color));
+    });
+    paletteGrid.querySelectorAll(".palette-card").forEach(card => {
+      card.classList.toggle("active", card.dataset.palette === activePaletteName);
+    });
+    colorInput.value = selectedColors.join(",");
+    if (activePaletteName){
+      colorSelected.textContent = `Palette selected: ${activePaletteName}`;
+    } else {
+      colorSelected.textContent = selectedColors.length ? `${selectedColors.length} colour(s) selected` : "No colours selected";
+    }
+  }
+
+  colorPicker.addEventListener("click", (e) => {
+    const swatch = e.target.closest(".color-swatch");
+    if (!swatch) return;
+    const color = swatch.dataset.color;
+    const idx = selectedColors.indexOf(color);
+    if (idx > -1) selectedColors.splice(idx,1); else selectedColors.push(color);
+    activePaletteName = "";
+    syncSwatchUI();
+  });
+
+  paletteGrid.addEventListener("click", (e) => {
+    const card = e.target.closest(".palette-card");
+    if (!card) return;
+    const palette = curatedPalettes.find(p => p.name === card.dataset.palette);
+    if (!palette) return;
+    if (activePaletteName === palette.name){
+      selectedColors = [];
+      activePaletteName = "";
+    } else {
+      selectedColors = [...palette.colors];
+      activePaletteName = palette.name;
+    }
+    syncSwatchUI();
+  });
+
+  /* ---------------- Upload preview ---------------- */
+  document.getElementById("uploadPhotos").addEventListener("change", (e) => {
+    const preview = document.getElementById("previewPhotos");
+    preview.innerHTML = "";
+    Array.from(e.target.files).slice(0,6).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (ev) => { const img = document.createElement("img"); img.src = ev.target.result; preview.appendChild(img); };
+      reader.readAsDataURL(file);
+    });
+  });
+
+  /* ---------------- Coupon ---------------- */
+  const coupons = { "WELCOME10":10, "FESTIVE15":15, "SPECIAL20":20 };
+  document.getElementById("applyCoupon").addEventListener("click", () => {
+    const code = document.getElementById("coupon").value.trim().toUpperCase();
+    if (coupons[code]) showToast(`Coupon applied — ${coupons[code]}% off!`);
+    else showToast("Invalid coupon code", "error");
+  });
+
+  /* ---------------- Field validation helper ---------------- */
+  function validateField(field){
+    const wrapper = field.closest(".field");
+    let valid = field.checkValidity();
+    wrapper.classList.toggle("invalid", !valid);
+    return valid;
+  }
+
+  /* ---------------- Order form submit ---------------- */
+  orderForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    let isValid = true;
+    orderForm.querySelectorAll(".field input[required], .field textarea[required], .field select[required]").forEach(f => {
+      if (!validateField(f)) isValid = false;
+    });
+    const packageSelected = orderForm.querySelector('[name="package"]:checked');
+    document.getElementById("packageError").style.display = packageSelected ? "none" : "block";
+    if (!packageSelected) isValid = false;
+
+    const paymentBlock = orderForm.querySelector('[data-plans="basic premium animated website"]:nth-of-type(1), fieldset[data-plans*="basic"]');
+    const paymentVisible = document.getElementById("paymentError").closest(".form-block").style.display !== "none";
+    const paymentSelected = orderForm.querySelector('[name="payment"]:checked');
+    if (paymentVisible){
+      document.getElementById("paymentError").style.display = paymentSelected ? "none" : "block";
+      if (!paymentSelected) isValid = false;
+    }
+    const confirmInfo = document.getElementById("confirmInfo");
+    if (!confirmInfo.checked){ isValid = false; }
+
+    const ceremoniesSection = document.getElementById("weddingCeremoniesSection");
+    if (ceremoniesSection.style.display !== "none"){
+      const hasCeremony = document.getElementById("selectedCeremonies").value.trim().length > 0;
+      document.getElementById("ceremonyError").style.display = hasCeremony ? "none" : "block";
+      if (!hasCeremony) isValid = false;
+    }
+
+    if (!isValid){
+      showToast("Please complete the required fields", "error");
+      const firstInvalid = orderForm.querySelector(".field.invalid, #packageError[style*='block'], #paymentError[style*='block'], #ceremonyError[style*='block']");
+      if (firstInvalid) firstInvalid.scrollIntoView({behavior:"smooth", block:"center"});
+      return;
+    }
+
+    const submitBtn = orderForm.querySelector('[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Submitting...";
+
+    const formData = new FormData(orderForm);
+    const fileInput = document.getElementById("uploadPhotos");
+    if (fileInput.files.length) {
+      Array.from(fileInput.files).slice(0, 6).forEach(f => formData.append("photos", f));
+    }
+
+    fetch("/api/orders", { method: "POST", body: formData })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          showToast(data.message || "Order submitted! We'll reach out within 2 hours.");
+          orderForm.reset();
+          setEventType("");
+          if (window.resetCeremonies) window.resetCeremonies();
+          selectedColors = [];
+          activePaletteName = "";
+          syncSwatchUI();
+          updatePlanBlocks();
+          updateProgress();
+          document.getElementById("previewPhotos").innerHTML = "";
+        } else {
+          showToast(data.error || "Something went wrong", "error");
+        }
+      })
+      .catch(() => showToast("Network error. Please try again.", "error"))
+      .finally(() => { submitBtn.disabled = false; submitBtn.textContent = "Submit Order"; });
+  });
+
+  /* ---------------- Portfolio ---------------- */
+  const portfolioItems = [
+    { cat:"wedding", title:"Royal Wedding", sub:"Wedding · Royal Theme", grad:"linear-gradient(160deg,#7A2440,#C89B3C)" },
+    { cat:"wedding", title:"Floral Mandap", sub:"Wedding · Floral Theme", grad:"linear-gradient(160deg,#4A1229,#C6708A)" },
+    { cat:"birthday", title:"Golden Confetti", sub:"Birthday · Modern Theme", grad:"linear-gradient(160deg,#1F6F64,#150B18)" },
+    { cat:"birthday", title:"Cartoon Bash", sub:"Birthday · Cartoon Theme", grad:"linear-gradient(160deg,#C89B3C,#C6708A)" },
+    { cat:"engagement", title:"Promise Ring", sub:"Engagement · Luxury Theme", grad:"linear-gradient(160deg,#4A1229,#E8C77E)" },
+    { cat:"babyshower", title:"Little Star", sub:"Baby Shower · Minimal Theme", grad:"linear-gradient(160deg,#1F6F64,#7A2440)" },
+    { cat:"website", title:"Aanya &amp; Rohan", sub:"Website Invitation · RSVP + Map", grad:"linear-gradient(160deg,#150B18,#C89B3C)" },
+    { cat:"video", title:"Wedding Reel", sub:"Animated Invitation · 20s", grad:"linear-gradient(160deg,#7A2440,#1F6F64)" },
+    { cat:"wedding", title:"Traditional Vows", sub:"Wedding · Traditional Theme", grad:"linear-gradient(160deg,#C89B3C,#4A1229)" },
+    { cat:"engagement", title:"Golden Hour", sub:"Engagement · Modern Theme", grad:"linear-gradient(160deg,#C6708A,#150B18)" },
+    { cat:"babyshower", title:"Soft Clouds", sub:"Baby Shower · Floral Theme", grad:"linear-gradient(160deg,#1F6F64,#E8C77E)" },
+    { cat:"video", title:"Birthday Motion", sub:"Animated Invitation · 15s", grad:"linear-gradient(160deg,#4A1229,#1F6F64)" },
+  ];
+  const portfolioGrid = document.getElementById("portfolioGrid");
+  portfolioGrid.innerHTML = portfolioItems.map((p,i) => `
+    <div class="portfolio-item glass reveal-up" data-cat="${p.cat}" data-index="${i}" tabindex="0" role="button" aria-label="Preview ${p.title}" style="transition-delay:${(i%3)*0.06}s">
+      <div class="p-bg" style="background:${p.grad}"><span>${p.title}</span></div>
+      <div class="p-body">
+        <span class="p-tag">${p.cat.replace("babyshower","Baby Shower")}</span>
+        <strong>${p.title}</strong>
+        <span class="p-sub">${p.sub}</span>
+      </div>
+    </div>
+  `).join("");
+  observeReveal();
+
+  document.querySelectorAll(".filter-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      const filter = btn.dataset.filter;
+      document.querySelectorAll(".portfolio-item").forEach(item => {
+        item.classList.toggle("hide", !(filter === "all" || item.dataset.cat === filter));
+      });
+    });
+  });
+
+  /* ---------------- Lightbox ---------------- */
+  const lightbox = document.getElementById("lightbox");
+  const lightboxContent = document.getElementById("lightboxContent");
+  let currentIndex = 0;
+  function openLightbox(index){ currentIndex = index; renderLightbox(); lightbox.classList.add("open"); }
+  function renderLightbox(){
+    const p = portfolioItems[currentIndex];
+    lightboxContent.style.background = p.grad;
+    lightboxContent.textContent = `${p.title} — ${p.sub.replace("&amp;","&")}`;
+  }
+  function closeLightbox(){ lightbox.classList.remove("open"); }
+  portfolioGrid.addEventListener("click", (e) => {
+    const item = e.target.closest(".portfolio-item");
+    if (!item || item.classList.contains("hide")) return;
+    openLightbox(parseInt(item.dataset.index, 10));
+  });
+  portfolioGrid.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && e.target.classList.contains("portfolio-item")) openLightbox(parseInt(e.target.dataset.index, 10));
+  });
+  document.getElementById("lightboxClose").addEventListener("click", closeLightbox);
+  lightbox.addEventListener("click", (e) => { if (e.target === lightbox) closeLightbox(); });
+  document.getElementById("lightboxNext").addEventListener("click", () => { currentIndex = (currentIndex + 1) % portfolioItems.length; renderLightbox(); });
+  document.getElementById("lightboxPrev").addEventListener("click", () => { currentIndex = (currentIndex - 1 + portfolioItems.length) % portfolioItems.length; renderLightbox(); });
+  document.addEventListener("keydown", (e) => {
+    if (!lightbox.classList.contains("open")) return;
+    if (e.key === "Escape") closeLightbox();
+    if (e.key === "ArrowRight") document.getElementById("lightboxNext").click();
+    if (e.key === "ArrowLeft") document.getElementById("lightboxPrev").click();
+  });
+
+  /* ---------------- Testimonials ---------------- */
+  const testimonials = [
+    { text:"Absolutely stunning! The gold foil design was exactly what I wanted for my wedding invitation. Delivered in less than 24 hours.", name:"Priya S.", role:"Wedding Invitation", init:"P", grad:"linear-gradient(135deg,#C89B3C,#7A2440)" },
+    { text:"The animated video invitation was a hit with our family! Everyone loved the music and the smooth animations.", name:"Rohan M.", role:"Baby Shower Video", init:"R", grad:"linear-gradient(135deg,#C6708A,#1F6F64)" },
+    { text:"We ordered the luxury website invitation for our wedding. The countdown timer and RSVP form made everything so easy.", name:"Ananya K.", role:"Website Invitation", init:"A", grad:"linear-gradient(135deg,#C89B3C,#150B18)" },
+    { text:"I've ordered multiple birthday invitations and each one has been more beautiful than the last. The colour picker made matching my theme so easy!", name:"Vikram P.", role:"Birthday Invitations", init:"V", grad:"linear-gradient(135deg,#1F6F64,#C89B3C)" },
+    { text:"Professional, responsive, and incredibly talented. They designed a corporate invitation that perfectly captured our brand identity.", name:"Neha D.", role:"Corporate Event", init:"N", grad:"linear-gradient(135deg,#7A2440,#C89B3C)" },
+  ];
+  const track = document.getElementById("testimonialsTrack");
+  track.innerHTML = testimonials.map(t => `
+    <div class="testimonial-card glass">
+      <div class="testimonial-stars">★★★★★</div>
+      <p class="testimonial-text">${t.text}</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar" style="background:${t.grad}">${t.init}</div>
+        <div><strong>${t.name}</strong><span>${t.role}</span></div>
+      </div>
+    </div>
+  `).join("");
+  const nav = document.getElementById("testimonialsNav");
+  nav.innerHTML = testimonials.map((t,i) => `<button class="testimonial-dot ${i===0?'active':''}" data-index="${i}" aria-label="Slide ${i+1}"></button>`).join("");
+  const dots = document.querySelectorAll(".testimonial-dot");
+  let current = 0, interval;
+  function goTo(i){
+    const perView = window.innerWidth <= 720 ? 1 : window.innerWidth <= 1000 ? 2 : 3;
+    const max = testimonials.length - perView;
+    current = Math.max(0, Math.min(i, max));
+    const cardWidth = track.children[0].offsetWidth + 22;
+    track.style.transform = `translateX(-${current * cardWidth}px)`;
+    dots.forEach((d,idx) => d.classList.toggle("active", idx === current));
+  }
+  dots.forEach(dot => dot.addEventListener("click", () => { goTo(parseInt(dot.dataset.index,10)); resetAutoplay(); }));
+  function resetAutoplay(){
+    clearInterval(interval);
+    interval = setInterval(() => { goTo((current + 1) % testimonials.length); }, 5000);
+  }
+  resetAutoplay();
+
+  /* ---------------- FAQ ---------------- */
+  const faqs = [
+    { q:"How does the ordering process work?", a:"Simply choose your invitation style, select a package, and fill in the Order form. We'll get in touch within 2 hours to confirm details and start crafting your design. Most orders are delivered within 24 hours." },
+    { q:"Can I edit my invitation after delivery?", a:"Yes — every package includes up to 2 free revisions. Whether you need to fix a typo, change a colour, or swap a photo, just reach out and we'll update your invitation." },
+    { q:"What formats will I receive?", a:"All packages include high-resolution JPG and PNG files ready for WhatsApp, email, and social media. Premium and Luxury packages also include MP4 video invitations with background music." },
+    { q:"How long does delivery take?", a:"Standard delivery is within 24 hours for digital invitations and 2–4 days for invitation websites. Need it fast? Same Day Delivery (4–6 hours) is available as an add-on." },
+    { q:"Do you offer custom designs?", a:"Absolutely. Our Premium and Luxury packages include fully custom designs tailored to your theme, colour palette, and personal preferences." },
+    { q:"What events do you cover?", a:"We design invitations for weddings, engagements, birthdays, anniversaries, baby showers, housewarming parties, corporate events, religious ceremonies, and festive celebrations." },
+    { q:"Can I include multiple languages?", a:"Yes! We support bilingual and multilingual invitations, including English + Hindi, English + Gujarati, English + Marathi, and English + Tamil." },
+    { q:"Which payment methods are accepted?", a:"We accept UPI (Google Pay, PhonePe, Paytm), credit cards, debit cards, net banking, and popular digital wallets." },
+    { q:"Do you create invitation websites?", a:"Yes — our Luxury Website Invitation includes a beautiful personal website with a countdown timer, online RSVP form, photo gallery, and Google Maps integration." },
+    { q:"What if I'm not satisfied?", a:"Your satisfaction is our priority. Each package includes free revisions, and we won't finalise delivery until you're completely happy with the result." },
+  ];
+  const accordion = document.getElementById("accordion");
+  accordion.innerHTML = faqs.map((f,i) => `
+    <div class="accordion-item reveal-up" style="transition-delay:${i*0.04}s">
+      <button class="accordion-q" aria-expanded="false" type="button"><span>${f.q}</span><span class="plus"></span></button>
+      <div class="accordion-a"><p>${f.a}</p></div>
+    </div>
+  `).join("");
+  observeReveal();
+  document.querySelectorAll(".accordion-q").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const item = btn.closest(".accordion-item");
+      const answer = item.querySelector(".accordion-a");
+      const isOpen = item.classList.contains("open");
+      document.querySelectorAll(".accordion-item.open").forEach(openItem => {
+        openItem.classList.remove("open");
+        openItem.querySelector(".accordion-a").style.maxHeight = null;
+        openItem.querySelector(".accordion-q").setAttribute("aria-expanded","false");
+      });
+      if (!isOpen){
+        item.classList.add("open");
+        answer.style.maxHeight = answer.scrollHeight + "px";
+        btn.setAttribute("aria-expanded","true");
+      }
+    });
+  });
+
+  /* ---------------- Contact form ---------------- */
+  const contactForm = document.getElementById("contactForm");
+  contactForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    let isValid = true;
+    ["cName","cEmail","cMessage"].forEach(id => {
+      const field = document.getElementById(id);
+      if (!validateField(field)) isValid = false;
+    });
+    if (!isValid){ showToast("Please complete all fields", "error"); return; }
+    showToast("Message sent! We'll reply within 24 hours.");
+    contactForm.reset();
+  });
+
+});
+</script>
+</body>
+</html>
