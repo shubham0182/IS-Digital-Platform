@@ -10,7 +10,7 @@
 <meta property="og:description" content="Premium digital invitations inspired by India's temple architecture. Wedding, Birthday, Engagement & more.">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#150B18">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕌</text></svg>">
+<link rel="icon" href="logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -171,22 +171,18 @@ input,textarea,select{font:inherit;color:inherit;}
 .btn-block{width:100%;}
 
 /* ============================================================
-   LOADER — arch portal + mandala spin
+   LOADER — intro video (desktop / laptop only)
    ============================================================ */
 .loader{
-  position:fixed;inset:0;z-index:9999;background:var(--bg);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;
+  position:fixed;inset:0;z-index:9999;background:#000;
+  display:flex;align-items:center;justify-content:center;
   transition:opacity .7s var(--ease),visibility .7s;
 }
 .loader.hidden{opacity:0;visibility:hidden;pointer-events:none;}
-.loader-mandala{width:150px;height:150px;animation:spin 12s linear infinite;color:var(--accent);}
-.loader-mandala .core{animation:pulse 2.2s ease-in-out infinite;transform-origin:center;}
-@keyframes spin{to{transform:rotate(360deg);}}
-@keyframes pulse{0%,100%{opacity:.5;}50%{opacity:1;}}
-.loader-word{font-family:var(--font-label);letter-spacing:.3em;font-size:.72rem;text-transform:uppercase;color:var(--text-muted);}
-.loader-bar{width:180px;height:2px;background:var(--border);border-radius:2px;overflow:hidden;}
-.loader-bar span{display:block;height:100%;width:0%;background:var(--accent);animation:load 1.6s var(--ease) forwards;}
-@keyframes load{to{width:100%;}}
+.loader-video{width:100%;height:100%;object-fit:cover;}
+@media (max-width:768px){
+  .loader{display:none;}
+}
 
 /* ============================================================
    TOASTS
@@ -221,7 +217,7 @@ input,textarea,select{font:inherit;color:inherit;}
 }
 .nav-inner{width:100%;max-width:var(--container);margin:0 auto;padding:0 28px;display:flex;align-items:center;justify-content:space-between;gap:20px;}
 .logo{display:flex;align-items:center;gap:10px;}
-.logo-mark{width:38px;height:38px;color:var(--accent);}
+.logo-mark{width:38px;height:38px;color:var(--accent);object-fit:contain;border-radius:10px;}
 .logo-text{font-family:var(--font-display);font-size:1.15rem;font-weight:600;letter-spacing:.01em;}
 .logo-text em{font-style:normal;color:var(--accent);}
 .nav-links{display:flex;align-items:center;gap:6px;}
@@ -274,14 +270,10 @@ input,textarea,select{font:inherit;color:inherit;}
 .stat-num{font-family:var(--font-display);font-size:1.7rem;font-weight:600;color:var(--accent);display:block;}
 .stat-label{font-size:.74rem;color:var(--text-muted);letter-spacing:.02em;}
 
-/* the arch portal graphic */
+/* the hero logo graphic */
 .portal-wrap{position:relative;display:flex;align-items:center;justify-content:center;}
-.portal-svg{width:100%;max-width:440px;color:var(--accent);}
-.portal-mandala{transform-origin:220px 250px;animation:spin 30s linear infinite;}
-.portal-mandala-inner{transform-origin:220px 250px;animation:spin 20s linear infinite reverse;}
-.portal-seal{fill:var(--maroon);}
-[data-theme="light"] .portal-seal{fill:var(--maroon);}
-.portal-seal-text{fill:var(--ivory);font-family:var(--font-label);font-size:15px;font-weight:700;}
+.hero-logo{position:relative;z-index:1;width:96%;max-width:540px;height:auto;object-fit:contain;animation:heroFloat 7s ease-in-out infinite;}
+@keyframes heroFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
 
 /* ============================================================
    GLASS / SURFACE CARDS
@@ -794,29 +786,7 @@ input,textarea,select{font:inherit;color:inherit;}
 
 <!-- ============ LOADER ============ -->
 <div class="loader" id="loader" aria-hidden="true">
-  <svg class="loader-mandala" viewBox="0 0 200 200" fill="none" stroke="currentColor">
-    <g class="core">
-      <circle cx="100" cy="100" r="86" stroke-width="1"/>
-      <circle cx="100" cy="100" r="66" stroke-width="1"/>
-      <circle cx="100" cy="100" r="10" stroke-width="1.4"/>
-    </g>
-    <g stroke-width="1.4">
-      <path d="M100 14 C112 34 112 46 100 66 C88 46 88 34 100 14Z" transform="rotate(0 100 100)"/>
-      <path d="M100 14 C112 34 112 46 100 66 C88 46 88 34 100 14Z" transform="rotate(30 100 100)"/>
-      <path d="M100 14 C112 34 112 46 100 66 C88 46 88 34 100 14Z" transform="rotate(60 100 100)"/>
-      <path d="M100 14 C112 34 112 46 100 66 C88 46 88 34 100 14Z" transform="rotate(90 100 100)"/>
-      <path d="M100 14 C112 34 112 46 100 66 C88 46 88 34 100 14Z" transform="rotate(120 100 100)"/>
-      <path d="M100 14 C112 34 112 46 100 66 C88 46 88 34 100 14Z" transform="rotate(150 100 100)"/>
-      <path d="M100 14 C112 34 112 46 100 66 C88 46 88 34 100 14Z" transform="rotate(180 100 100)"/>
-      <path d="M100 14 C112 34 112 46 100 66 C88 46 88 34 100 14Z" transform="rotate(210 100 100)"/>
-      <path d="M100 14 C112 34 112 46 100 66 C88 46 88 34 100 14Z" transform="rotate(240 100 100)"/>
-      <path d="M100 14 C112 34 112 46 100 66 C88 46 88 34 100 14Z" transform="rotate(270 100 100)"/>
-      <path d="M100 14 C112 34 112 46 100 66 C88 46 88 34 100 14Z" transform="rotate(300 100 100)"/>
-      <path d="M100 14 C112 34 112 46 100 66 C88 46 88 34 100 14Z" transform="rotate(330 100 100)"/>
-    </g>
-  </svg>
-  <p class="loader-word">IS Digital Platform</p>
-  <div class="loader-bar"><span></span></div>
+  <video class="loader-video" id="loaderVideo" src="loading.mp4" autoplay muted playsinline preload="auto"></video>
 </div>
 
 <div id="toastContainer" class="toast-container" aria-live="polite"></div>
@@ -835,18 +805,7 @@ input,textarea,select{font:inherit;color:inherit;}
 <header class="navbar" id="navbar">
   <div class="nav-inner">
     <a href="#home" data-page="home" class="logo">
-      <svg class="logo-mark" viewBox="0 0 60 60" fill="none" stroke="currentColor" stroke-width="1.6">
-        <circle cx="30" cy="30" r="26"/>
-        <circle cx="30" cy="30" r="17"/>
-        <path d="M30 4 C36 14 36 20 30 30 C24 20 24 14 30 4Z" transform="rotate(0 30 30)"/>
-        <path d="M30 4 C36 14 36 20 30 30 C24 20 24 14 30 4Z" transform="rotate(45 30 30)"/>
-        <path d="M30 4 C36 14 36 20 30 30 C24 20 24 14 30 4Z" transform="rotate(90 30 30)"/>
-        <path d="M30 4 C36 14 36 20 30 30 C24 20 24 14 30 4Z" transform="rotate(135 30 30)"/>
-        <path d="M30 4 C36 14 36 20 30 30 C24 20 24 14 30 4Z" transform="rotate(180 30 30)"/>
-        <path d="M30 4 C36 14 36 20 30 30 C24 20 24 14 30 4Z" transform="rotate(225 30 30)"/>
-        <path d="M30 4 C36 14 36 20 30 30 C24 20 24 14 30 4Z" transform="rotate(270 30 30)"/>
-        <path d="M30 4 C36 14 36 20 30 30 C24 20 24 14 30 4Z" transform="rotate(315 30 30)"/>
-      </svg>
+      <img src="logo.jpg" alt="IS Digital Platform" class="logo-mark">
       <span class="logo-text">IS Digital <em>Platform</em></span>
     </a>
 
@@ -899,36 +858,7 @@ input,textarea,select{font:inherit;color:inherit;}
     </div>
 
     <div class="portal-wrap reveal-up">
-      <svg class="portal-svg" viewBox="0 0 440 500" fill="none">
-        <!-- gopuram tiers on top -->
-        <g stroke="currentColor" stroke-width="1.4" opacity=".85">
-          <path d="M170 40 L190 40 L190 24 L210 24 L210 8 L230 8 L230 24 L250 24 L250 40 L270 40"/>
-          <circle cx="220" cy="4" r="3" fill="currentColor"/>
-        </g>
-        <!-- pointed mughal arch (iwan) -->
-        <path d="M60 480 V260 C60 150 130 70 220 70 C310 70 380 150 380 260 V480" stroke="currentColor" stroke-width="2"/>
-        <path d="M90 480 V262 C90 168 148 100 220 100 C292 100 350 168 350 262 V480" stroke="currentColor" stroke-width="1" opacity=".55"/>
-        <!-- rotating mandala inside arch -->
-        <g class="portal-mandala" stroke="currentColor" stroke-width="1">
-          <circle cx="220" cy="250" r="95" opacity=".5"/>
-          <circle cx="220" cy="250" r="70" opacity=".7"/>
-          <g class="portal-mandala-inner">
-            <path d="M220 178 C232 198 232 210 220 230 C208 210 208 198 220 178Z" transform="rotate(0 220 250)"/>
-            <path d="M220 178 C232 198 232 210 220 230 C208 210 208 198 220 178Z" transform="rotate(45 220 250)"/>
-            <path d="M220 178 C232 198 232 210 220 230 C208 210 208 198 220 178Z" transform="rotate(90 220 250)"/>
-            <path d="M220 178 C232 198 232 210 220 230 C208 210 208 198 220 178Z" transform="rotate(135 220 250)"/>
-            <path d="M220 178 C232 198 232 210 220 230 C208 210 208 198 220 178Z" transform="rotate(180 220 250)"/>
-            <path d="M220 178 C232 198 232 210 220 230 C208 210 208 198 220 178Z" transform="rotate(225 220 250)"/>
-            <path d="M220 178 C232 198 232 210 220 230 C208 210 208 198 220 178Z" transform="rotate(270 220 250)"/>
-            <path d="M220 178 C232 198 232 210 220 230 C208 210 208 198 220 178Z" transform="rotate(315 220 250)"/>
-          </g>
-        </g>
-        <!-- wax seal -->
-        <circle class="portal-seal" cx="220" cy="250" r="34"/>
-        <text class="portal-seal-text" x="220" y="257" text-anchor="middle">IS</text>
-        <!-- base jali strip -->
-        <rect x="60" y="440" width="320" height="40" fill="url(#tierPattern)" opacity=".5"/>
-      </svg>
+      <img class="hero-logo" src="logo.png" alt="IS Digital Platform">
     </div>
   </div>
 </section>
@@ -1468,7 +1398,7 @@ input,textarea,select{font:inherit;color:inherit;}
   <div class="container footer-grid">
     <div class="footer-brand">
       <a href="#home" data-page="home" class="logo">
-        <svg class="logo-mark" viewBox="0 0 60 60" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="30" cy="30" r="26"/><circle cx="30" cy="30" r="17"/></svg>
+        <img src="logo.jpg" alt="IS Digital Platform" class="logo-mark">
         <span class="logo-text">IS Digital <em>Platform</em></span>
       </a>
       <p>Beautiful digital invitations for every celebration, inspired by India's temple architecture, crafted with care in Ahmedabad.</p>
@@ -1527,16 +1457,31 @@ input,textarea,select{font:inherit;color:inherit;}
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
-  /* ---------------- Loader ---------------- */
+  /* ---------------- Loader (intro video, desktop/laptop only) ---------------- */
   const loader = document.getElementById("loader");
+  const loaderVideo = document.getElementById("loaderVideo");
   const hasLoaded = sessionStorage.getItem("ts-loaded");
-  if (hasLoaded){
+  const isDesktop = window.matchMedia("(min-width: 769px) and (pointer: fine)").matches;
+  let loaderDone = false;
+
+  function hideLoader(){
+    if (loaderDone) return;
+    loaderDone = true;
     loader.classList.add("hidden");
+    sessionStorage.setItem("ts-loaded","1");
+  }
+
+  if (hasLoaded || !isDesktop){
+    hideLoader();
+  } else if (loaderVideo){
+    const onEnd = () => hideLoader();
+    loaderVideo.addEventListener("ended", onEnd);
+    loaderVideo.addEventListener("error", onEnd);
+    const durationMs = isFinite(loaderVideo.duration) && loaderVideo.duration > 0 ? loaderVideo.duration * 1000 : 8000;
+    setTimeout(onEnd, durationMs + 500);
+    loaderVideo.play().catch(onEnd);
   } else {
-    window.addEventListener("load", () => {
-      setTimeout(() => { loader.classList.add("hidden"); sessionStorage.setItem("ts-loaded","1"); }, 1400);
-    });
-    setTimeout(() => { loader.classList.add("hidden"); sessionStorage.setItem("ts-loaded","1"); }, 2600);
+    hideLoader();
   }
 
   /* ---------------- Theme toggle ---------------- */
