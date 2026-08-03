@@ -323,6 +323,35 @@
       .order-card-actions{display:flex;gap:8px;align-items:center;padding-top:12px;border-top:1px solid var(--border-light);}
       .order-card-actions .status-select{max-width:120px;}
     }
+
+    /* ===================== USER GROUPED ORDERS ===================== */
+    .user-group-row td{
+      background:rgba(122,36,64,0.14);
+      padding:10px 16px;
+      border-top:2px solid var(--border);
+    }
+    .user-group-row:hover td{background:rgba(122,36,64,0.14);}
+    .user-group-header{display:flex;align-items:center;gap:10px;}
+    .ug-avatar{
+      width:34px;height:34px;border-radius:50%;object-fit:cover;
+      border:1px solid var(--border);flex-shrink:0;
+    }
+    .ug-avatar-initial{
+      background:var(--maroon);color:var(--gold);
+      display:flex;align-items:center;justify-content:center;
+      font-weight:700;font-size:12px;text-transform:uppercase;
+    }
+    .ug-info{display:flex;flex-direction:column;min-width:0;flex:1;}
+    .ug-name{font-weight:700;font-size:12px;color:var(--gold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .ug-email{font-size:10px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;}
+    .ug-count{font-size:10px;font-weight:700;color:var(--text-dim);background:var(--surface3);padding:3px 10px;border-radius:12px;white-space:nowrap;flex-shrink:0;}
+    .user-group-block{margin-bottom:14px;}
+
+    @media(max-width:768px){
+      .user-group-row td{padding:10px 12px;}
+      .ug-avatar{width:30px;height:30px;}
+      .ug-email{max-width:150px;}
+    }
   </style>
 </head>
 <body>
@@ -575,6 +604,98 @@ function renderColorStrip(colors) {
   return h+'</div>';
 }
 
+function esc(s) {
+  return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function orderUserKey(o) {
+  if(o.userId) return 'u:'+o.userId;
+  if(o.userEmail) return 'g:'+o.userEmail;
+  if(o.email) return 'g:'+o.email;
+  if(o.cname) return 'g:'+o.cname;
+  return 'g:guest';
+}
+
+function orderUserLabel(o) {
+  return { name: o.userName || o.cname || 'Guest', email: o.userEmail || o.email || '', pic: o.userPicture || '' };
+}
+
+function initials(name) {
+  const parts = String(name||'G').trim().split(/\s+/);
+  return parts.map(w=>w[0]||'').slice(0,2).join('').toUpperCase() || 'G';
+}
+
+function userGroupHeaderHTML(label, count) {
+  const avatar = label.pic
+    ? '<img class="ug-avatar" src="'+esc(label.pic)+'" alt="" onerror="this.onerror=null;this.style.display=\'none\'">'
+    : '<div class="ug-avatar ug-avatar-initial">'+esc(initials(label.name))+'</div>';
+  return '<div class="user-group-header">'+avatar
+    +'<div class="ug-info"><span class="ug-name">'+esc(label.name)+'</span><span class="ug-email">'+esc(label.email)+'</span></div>'
+    +'<span class="ug-count">'+count+' order'+(count>1?'s':'')+'</span>'
+    +'</div>';
+}
+
+function orderRowHTML(o, i) {
+  const st=o.status||'pending';
+  return '<tr>'
+    +'<td style="text-align:center;color:var(--text-dim);font-size:11px">'+i+'</td>'
+    +'<td style="font-size:11px;color:var(--text-dim)">'+fmtDate(o.createdAt)+'</td>'
+    +'<td><span style="font-weight:600">'+(o.eventType||'-')+'</span><br><small style="color:var(--text-dim);font-size:10px">'+(o.eventDate||'')+'</small></td>'
+    +'<td><span style="font-weight:600">'+(o.cname||'-')+'</span><br><small style="color:var(--text-dim);font-size:10px;overflow:hidden;text-overflow:ellipsis;display:block;white-space:nowrap;max-width:110px">'+(o.email||'')+'</small></td>'
+    +'<td style="text-transform:capitalize;font-weight:600;font-size:11px">'+(o.package||'-')+'</td>'
+    +'<td>'+renderPhotoStrip(o.photos)+'</td>'
+    +'<td>'+renderColorStrip(o.selectedColors||(o.colors?o.colors.split(',').map(c=>c.trim()):[]))+'</td>'
+    +'<td><select class="status-select" onchange="updateStatus(\''+o.id+'\',this.value)">'
+      +'<option value="pending" '+(st==='pending'?'selected':'')+'>Pending</option>'
+      +'<option value="confirmed" '+(st==='confirmed'?'selected':'')+'>Confirmed</option>'
+      +'<option value="in-progress" '+(st==='in-progress'?'selected':'')+'>In Progress</option>'
+      +'<option value="delivered" '+(st==='delivered'?'selected':'')+'>Delivered</option>'
+      +'<option value="cancelled" '+(st==='cancelled'?'selected':'')+'>Cancelled</option>'
+    +'</select></td>'
+    +'<td><div class="action-btns">'
+      +iconBtn('btn-view','eye','View Order',"viewOrder('"+o.id+"')")
+      +iconBtn('btn-pdf','pdf','Download PDF',"downloadPdf('"+o.id+"')")
+      +iconBtn('btn-word','word','Download Word',"downloadWord('"+o.id+"')")
+      +iconBtn('btn-delete','trash','Delete Order',"deleteOrder('"+o.id+"')")
+    +'</div></td></tr>';
+}
+
+function orderCardHTML(o, i) {
+  const st=o.status||'pending';
+  const sc=STATUS_COLORS[st]||STATUS_COLORS.pending;
+  const photos=o.photos||[];
+  const colors=o.selectedColors||(o.colors?o.colors.split(',').map(c=>c.trim()):[]);
+  let cardPhotos='';
+  if(photos.length){
+    cardPhotos='<div class="order-card-photos"><div class="card-photos-label">Photos ('+photos.length+')</div><div class="photo-strip">';
+    photos.slice(0,4).forEach(p=>{ cardPhotos+='<img src="'+p+'" alt="Photo">'; });
+    if(photos.length>4) cardPhotos+='<div class="photo-more">+'+(photos.length-4)+'</div>';
+    cardPhotos+='</div></div>';
+  }
+  return '<div class="order-card">'
+    +'<div class="order-card-header"><span class="order-card-num">#'+i+'</span><span class="order-card-date">'+fmtDate(o.createdAt)+'</span></div>'
+    +'<div class="order-card-event"><div class="ev-type">'+(o.eventType||'—')+'</div><div class="ev-date">'+(o.eventDate||'')+'</div></div>'
+    +'<div class="order-card-client"><span class="cl-name">'+(o.cname||'—')+'</span><span class="cl-email">'+(o.email||'')+'</span></div>'
+    +'<div class="order-card-meta"><span class="meta-tag">'+(o.package||'—')+'</span>'
+    +'<span class="meta-tag" style="background:'+sc.bg+';color:'+sc.color+';border:1px solid '+sc.border+'">'+st.toUpperCase()+'</span>'
+    +'</div>'
+    +cardPhotos
+    +'<div class="order-card-status"><div class="card-status-label">Change Status</div>'
+    +'<select class="status-select" onchange="updateStatus(\''+o.id+'\',this.value)">'
+      +'<option value="pending" '+(st==='pending'?'selected':'')+'>Pending</option>'
+      +'<option value="confirmed" '+(st==='confirmed'?'selected':'')+'>Confirmed</option>'
+      +'<option value="in-progress" '+(st==='in-progress'?'selected':'')+'>In Progress</option>'
+      +'<option value="delivered" '+(st==='delivered'?'selected':'')+'>Delivered</option>'
+      +'<option value="cancelled" '+(st==='cancelled'?'selected':'')+'>Cancelled</option>'
+    +'</select></div>'
+    +'<div class="order-card-actions">'
+      +iconBtn('btn-view','eye','View',"viewOrder('"+o.id+"')")
+      +iconBtn('btn-pdf','pdf','PDF',"downloadPdf('"+o.id+"')")
+      +iconBtn('btn-word','word','Word',"downloadWord('"+o.id+"')")
+      +iconBtn('btn-delete','trash','Delete',"deleteOrder('"+o.id+"')")
+    +'</div></div>';
+}
+
 function loadOrders() {
   fetch('/api/admin/orders?key='+adminKey).then(r=>r.json()).then(d=>{
     const body=document.getElementById('ordersBody');
@@ -584,65 +705,25 @@ function loadOrders() {
     if(!allOrders.length){ body.innerHTML=''; cards.innerHTML=''; empty.style.display='block'; return; }
     empty.style.display='none';
 
-    body.innerHTML=allOrders.map((o,i)=>{
-      const st=o.status||'pending';
-      return '<tr>'
-        +'<td style="text-align:center;color:var(--text-dim);font-size:11px">'+(i+1)+'</td>'
-        +'<td style="font-size:11px;color:var(--text-dim)">'+fmtDate(o.createdAt)+'</td>'
-        +'<td><span style="font-weight:600">'+(o.eventType||'-')+'</span><br><small style="color:var(--text-dim);font-size:10px">'+(o.eventDate||'')+'</small></td>'
-        +'<td><span style="font-weight:600">'+(o.cname||'-')+'</span><br><small style="color:var(--text-dim);font-size:10px;overflow:hidden;text-overflow:ellipsis;display:block;white-space:nowrap;max-width:110px">'+(o.email||'')+'</small></td>'
-        +'<td style="text-transform:capitalize;font-weight:600;font-size:11px">'+(o.package||'-')+'</td>'
-        +'<td>'+renderPhotoStrip(o.photos)+'</td>'
-        +'<td>'+renderColorStrip(o.selectedColors||(o.colors?o.colors.split(',').map(c=>c.trim()):[]))+'</td>'
-        +'<td><select class="status-select" onchange="updateStatus(\''+o.id+'\',this.value)">'
-          +'<option value="pending" '+(st==='pending'?'selected':'')+'>Pending</option>'
-          +'<option value="confirmed" '+(st==='confirmed'?'selected':'')+'>Confirmed</option>'
-          +'<option value="in-progress" '+(st==='in-progress'?'selected':'')+'>In Progress</option>'
-          +'<option value="delivered" '+(st==='delivered'?'selected':'')+'>Delivered</option>'
-          +'<option value="cancelled" '+(st==='cancelled'?'selected':'')+'>Cancelled</option>'
-        +'</select></td>'
-        +'<td><div class="action-btns">'
-          +iconBtn('btn-view','eye','View Order',"viewOrder('"+o.id+"')")
-          +iconBtn('btn-pdf','pdf','Download PDF',"downloadPdf('"+o.id+"')")
-          +iconBtn('btn-word','word','Download Word',"downloadWord('"+o.id+"')")
-          +iconBtn('btn-delete','trash','Delete Order',"deleteOrder('"+o.id+"')")
-        +'</div></td></tr>';
+    const groups=[];
+    const gmap={};
+    allOrders.forEach(o=>{
+      const key=orderUserKey(o);
+      if(!gmap[key]){ gmap[key]={key:key,label:orderUserLabel(o),orders:[]}; groups.push(gmap[key]); }
+      gmap[key].orders.push(o);
+    });
+    groups.sort((a,b)=>b.orders[0].createdAt.localeCompare(a.orders[0].createdAt));
+
+    let n=0;
+    body.innerHTML=groups.map(g=>{
+      const rows=g.orders.map(o=>orderRowHTML(o,++n)).join('');
+      return '<tr class="user-group-row"><td colspan="9">'+userGroupHeaderHTML(g.label,g.orders.length)+'</td></tr>'+rows;
     }).join('');
 
-    cards.innerHTML=allOrders.map((o,i)=>{
-      const st=o.status||'pending';
-      const sc=STATUS_COLORS[st]||STATUS_COLORS.pending;
-      const photos=o.photos||[];
-      const colors=o.selectedColors||(o.colors?o.colors.split(',').map(c=>c.trim()):[]);
-      let cardPhotos='';
-      if(photos.length){
-        cardPhotos='<div class="order-card-photos"><div class="card-photos-label">Photos ('+photos.length+')</div><div class="photo-strip">';
-        photos.slice(0,4).forEach(p=>{ cardPhotos+='<img src="'+p+'" alt="Photo">'; });
-        if(photos.length>4) cardPhotos+='<div class="photo-more">+'+(photos.length-4)+'</div>';
-        cardPhotos+='</div></div>';
-      }
-      return '<div class="order-card">'
-        +'<div class="order-card-header"><span class="order-card-num">#'+(i+1)+'</span><span class="order-card-date">'+fmtDate(o.createdAt)+'</span></div>'
-        +'<div class="order-card-event"><div class="ev-type">'+(o.eventType||'—')+'</div><div class="ev-date">'+(o.eventDate||'')+'</div></div>'
-        +'<div class="order-card-client"><span class="cl-name">'+(o.cname||'—')+'</span><span class="cl-email">'+(o.email||'')+'</span></div>'
-        +'<div class="order-card-meta"><span class="meta-tag">'+(o.package||'—')+'</span>'
-        +'<span class="meta-tag" style="background:'+sc.bg+';color:'+sc.color+';border:1px solid '+sc.border+'">'+st.toUpperCase()+'</span>'
-        +'</div>'
-        +cardPhotos
-        +'<div class="order-card-status"><div class="card-status-label">Change Status</div>'
-        +'<select class="status-select" onchange="updateStatus(\''+o.id+'\',this.value)">'
-          +'<option value="pending" '+(st==='pending'?'selected':'')+'>Pending</option>'
-          +'<option value="confirmed" '+(st==='confirmed'?'selected':'')+'>Confirmed</option>'
-          +'<option value="in-progress" '+(st==='in-progress'?'selected':'')+'>In Progress</option>'
-          +'<option value="delivered" '+(st==='delivered'?'selected':'')+'>Delivered</option>'
-          +'<option value="cancelled" '+(st==='cancelled'?'selected':'')+'>Cancelled</option>'
-        +'</select></div>'
-        +'<div class="order-card-actions">'
-          +iconBtn('btn-view','eye','View',"viewOrder('"+o.id+"')")
-          +iconBtn('btn-pdf','pdf','PDF',"downloadPdf('"+o.id+"')")
-          +iconBtn('btn-word','word','Word',"downloadWord('"+o.id+"')")
-          +iconBtn('btn-delete','trash','Delete',"deleteOrder('"+o.id+"')")
-        +'</div></div>';
+    n=0;
+    cards.innerHTML=groups.map(g=>{
+      const inner=g.orders.map(o=>orderCardHTML(o,++n)).join('');
+      return '<div class="user-group-block">'+userGroupHeaderHTML(g.label,g.orders.length)+inner+'</div>';
     }).join('');
   });
 }
@@ -674,6 +755,14 @@ function viewOrder(id) {
     +'<div class="modal-field"><div class="lbl">Order ID</div><div class="val" style="font-size:10px;word-break:break-all">'+o.id+'</div></div>'
     +'<div class="modal-field"><div class="lbl">Created</div><div class="val">'+fmtDate(o.createdAt)+'</div></div>'
     +'</div></div>';
+
+  if(o.userId || o.userName || o.userEmail) {
+    html += '<div class="modal-section"><h3>User Account</h3><div class="modal-grid">'
+      +'<div class="modal-field"><div class="lbl">User ID</div><div class="val" style="font-size:10px;word-break:break-all">'+val(o.userId)+'</div></div>'
+      +'<div class="modal-field"><div class="lbl">User Name</div><div class="val">'+val(o.userName)+'</div></div>'
+      +'<div class="modal-field"><div class="lbl">User Email</div><div class="val">'+val(o.userEmail)+'</div></div>'
+      +'</div></div>';
+  }
 
   html += '<div class="modal-section"><h3>Event Details</h3><div class="modal-grid">'
     +'<div class="modal-field"><div class="lbl">Event Type</div><div class="val">'+val(o.eventType)+'</div></div>'
