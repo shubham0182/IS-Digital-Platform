@@ -171,7 +171,7 @@ input,textarea,select{font:inherit;color:inherit;}
 .btn-block{width:100%;}
 
 /* ============================================================
-   LOADER — intro video (desktop / laptop only)
+   LOADER — intro video (loading.mp4 desktop / loading 2.mp4 mobile)
    ============================================================ */
 .loader{
   position:fixed;inset:0;z-index:9999;background:#000;
@@ -180,9 +180,6 @@ input,textarea,select{font:inherit;color:inherit;}
 }
 .loader.hidden{opacity:0;visibility:hidden;pointer-events:none;}
 .loader-video{width:100%;height:100%;object-fit:cover;}
-@media (max-width:768px){
-  .loader{display:none;}
-}
 
 /* ============================================================
    TOASTS
@@ -786,7 +783,7 @@ input,textarea,select{font:inherit;color:inherit;}
 
 <!-- ============ LOADER ============ -->
 <div class="loader" id="loader" aria-hidden="true">
-  <video class="loader-video" id="loaderVideo" src="loading.mp4" autoplay muted playsinline preload="auto"></video>
+  <video class="loader-video" id="loaderVideo" autoplay muted playsinline preload="auto"></video>
 </div>
 
 <div id="toastContainer" class="toast-container" aria-live="polite"></div>
@@ -1457,11 +1454,11 @@ input,textarea,select{font:inherit;color:inherit;}
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
-  /* ---------------- Loader (intro video, desktop/laptop only) ---------------- */
+  /* ---------------- Loader (intro video: loading.mp4 desktop, loading 2.mp4 mobile) ---------------- */
   const loader = document.getElementById("loader");
   const loaderVideo = document.getElementById("loaderVideo");
   const hasLoaded = sessionStorage.getItem("ts-loaded");
-  const isDesktop = window.matchMedia("(min-width: 769px) and (pointer: fine)").matches;
+  const isMobile = window.matchMedia("(max-width: 768px)").matches;
   let loaderDone = false;
 
   function hideLoader(){
@@ -1471,9 +1468,10 @@ document.addEventListener("DOMContentLoaded", () => {
     sessionStorage.setItem("ts-loaded","1");
   }
 
-  if (hasLoaded || !isDesktop){
+  if (hasLoaded){
     hideLoader();
   } else if (loaderVideo){
+    loaderVideo.src = isMobile ? "loading 2.mp4" : "loading.mp4";
     const onEnd = () => hideLoader();
     loaderVideo.addEventListener("ended", onEnd);
     loaderVideo.addEventListener("error", onEnd);
