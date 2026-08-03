@@ -2055,6 +2055,40 @@ document.addEventListener("DOMContentLoaded", () => {
       : "IS Digital Platform — " + id.charAt(0).toUpperCase() + id.slice(1);
   }
 
+  function goToPage(pageId){
+    if (("#" + pageId) === location.hash) showPage(pageId);
+    else location.hash = pageId;
+  }
+
+  /* The user's last known status lives in localStorage, which goes stale the
+     moment an admin approves/rejects them. Before letting anyone onto the
+     order page, re-check the freshest status on the server so an approved
+     user isn't blocked by their old "pending" copy. */
+  function refreshOrderAccess(user, pageId){
+    fetch("/api/auth/user?userId=" + encodeURIComponent(user.id))
+      .then(r => r.json())
+      .then(data => {
+        if (data && data.success) {
+          const fresh = data.user;
+          setTsUser(Object.assign({}, user, fresh));
+          updateGoogleBtn();
+          if (fresh.status === "approved") {
+            showToast("Welcome, " + (fresh.name || "there") + "! Your account is approved.");
+            goToPage(pageId);
+          } else if (fresh.status === "pending") {
+            showToast("Your account is pending admin approval", "error");
+          } else {
+            showToast("Your account has been rejected. Please contact support.", "error");
+            clearTsUser();
+            updateGoogleBtn();
+          }
+        } else {
+          showToast("Your account is pending admin approval", "error");
+        }
+      })
+      .catch(() => showToast("Your account is pending admin approval", "error"));
+  }
+
   function navigateTo(pageId){
     if (pageId === "order") {
       const user = getTsUser();
@@ -2063,18 +2097,17 @@ document.addEventListener("DOMContentLoaded", () => {
         googleModal.classList.add("open");
         return;
       }
-      if (user.status === "pending") {
-        showToast("Your account is pending admin approval", "error");
-        return;
-      }
+      if (user.status === "approved") { goToPage(pageId); return; }
       if (user.status === "rejected") {
         showToast("Your account has been rejected. Please contact support.", "error");
         clearTsUser();
+        updateGoogleBtn();
         return;
       }
+      refreshOrderAccess(user, pageId);
+      return;
     }
-    if (("#" + pageId) === location.hash) showPage(pageId);
-    else location.hash = pageId;
+    goToPage(pageId);
   }
   window.navigateTo = navigateTo;
 
