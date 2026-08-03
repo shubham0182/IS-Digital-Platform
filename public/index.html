@@ -1909,7 +1909,7 @@ document.addEventListener("DOMContentLoaded", () => {
   updateGoogleBtn();
 
   let syncing = false;
-  async function syncFirebaseUser(firebaseUser) {
+  async function syncFirebaseUser(firebaseUser, silent) {
     if (syncing) return;
     syncing = true;
     const name = firebaseUser.displayName || "User";
@@ -1925,20 +1925,25 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       const data = await resp.json();
       if (data.success) {
+        const wasApproved = (getTsUser() || {}).status === "approved";
         setTsUser(data.user);
         updateGoogleBtn();
-        if (data.user.status === "approved") {
-          showToast("Welcome, " + data.user.name + "!");
-        } else if (data.user.status === "pending") {
-          showToast("Account created! Waiting for admin approval.");
-        } else {
-          showToast("Your account has been rejected. Please contact support.", "error");
+        if (!silent) {
+          if (data.user.status === "approved") {
+            showToast("Welcome, " + data.user.name + "!");
+          } else if (data.user.status === "pending") {
+            showToast("Account created! Waiting for admin approval.");
+          } else {
+            showToast("Your account has been rejected. Please contact support.", "error");
+          }
+        } else if (data.user.status === "approved" && !wasApproved) {
+          showToast("Your account has been approved. You can place orders now.");
         }
-      } else {
+      } else if (!silent) {
         showToast(data.error || "Sign in failed", "error");
       }
     } catch(e) {
-      showToast("Network error. Please try again.", "error");
+      if (!silent) showToast("Network error. Please try again.", "error");
     } finally {
       syncing = false;
     }
@@ -1948,8 +1953,8 @@ document.addEventListener("DOMContentLoaded", () => {
   firebaseAuth.onAuthStateChanged((firebaseUser) => {
     if (firebaseUser) {
       const local = getTsUser();
-      if (!popupInProgress && (!local || local.email !== firebaseUser.email)) {
-        syncFirebaseUser(firebaseUser);
+      if (!popupInProgress && (!local || local.email !== firebaseUser.email || local.status !== "approved")) {
+        syncFirebaseUser(firebaseUser, true);
       }
     }
   });
@@ -2069,30 +2074,51 @@ document.addEventListener("DOMContentLoaded", () => {
      moment an admin approves/rejects them. Before letting anyone onto the
      order page, re-check the freshest status on the server so an approved
      user isn't blocked by their old "pending" copy. */
-  function refreshOrderAccess(user, pageId){
-    fetch("/api/auth/user?userId=" + encodeURIComponent(user.id))
-      .then(r => r.json())
-      .then(data => {
-        if (data && data.success) {
-          const fresh = data.user;
-          setTsUser(Object.assign({}, user, fresh));
-          updateGoogleBtn();
-          if (fresh.status === "approved") {
-            showToast("Welcome, " + (fresh.name || "there") + "! Your account is approved.");
-            goToPage(pageId);
-          } else if (fresh.status === "pending") {
-            showToast("Your account is pending admin approval", "error");
-          } else {
-            showToast("Your account has been rejected. Please contact support.", "error");
-            clearTsUser();
-            updateGoogleBtn();
-          }
-        } else {
-          showToast("Your account is pending admin approval", "error");
-        }
-      })
-      .catch(() => showToast("Your account is pending admin approval", "error"));
+  async function getFreshStatus() {
+    const user = getTsUser();
+    if (!user || !user.id) return user;
+    try {
+      const resp = await fetch("/api/auth/user?userId=" + encodeURIComponent(user.id));
+      const data = await resp.json();
+      if (data && data.success) {
+        const fresh = Object.assign({}, user, data.user);
+        setTsUser(fresh);
+        updateGoogleBtn();
+        return fresh;
+      }
+      if (firebaseAuth.currentUser) {
+        await syncFirebaseUser(firebaseAuth.currentUser, true);
+        const re = getTsUser();
+        if (re) { updateGoogleBtn(); return re; }
+      }
+      return user;
+    } catch (e) {
+      return user;
+    }
   }
+
+  function refreshOrderAccess(user, pageId){
+    getFreshStatus().then(fresh => {
+      if (fresh.status === "approved") {
+        showToast("Welcome, " + (fresh.name || "there") + "! Your account is approved.");
+        goToPage(pageId);
+      } else if (fresh.status === "pending") {
+        showToast("Your account is pending admin approval", "error");
+      } else if (fresh.status === "rejected") {
+        showToast("Your account has been rejected. Please contact support.", "error");
+        clearTsUser();
+        updateGoogleBtn();
+      } else {
+        showToast("Could not verify your account status. Please try again.", "error");
+      }
+    });
+  }
+
+  getFreshStatus();
+  window.addEventListener("focus", () => { if (getTsUser()) getFreshStatus(); });
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden && getTsUser()) getFreshStatus();
+  });
 
   function navigateTo(pageId){
     if (pageId === "order") {
@@ -2837,15 +2863,26 @@ document.addEventListener("DOMContentLoaded", () => {
   orderForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const user = getTsUser();
+    let user = getTsUser();
     if (!user) {
       showToast("Please sign in with Google first", "error");
       googleModal.classList.add("open");
       return;
     }
     if (user.status === "pending") {
-      showToast("Your account is pending admin approval. Please wait.", "error");
-      return;
+      const fresh = await getFreshStatus();
+      if (fresh && fresh.status === "approved") {
+        user = fresh;
+      } else if (fresh && fresh.status === "rejected") {
+        showToast("Your account has been rejected. Please contact support.", "error");
+        clearTsUser();
+        updateGoogleBtn();
+        googleModal.classList.add("open");
+        return;
+      } else {
+        showToast("Your account is pending admin approval. Please wait.", "error");
+        return;
+      }
     }
     if (user.status === "rejected") {
       showToast("Your account has been rejected. Please contact support.", "error");
