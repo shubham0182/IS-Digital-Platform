@@ -934,6 +934,21 @@ input,textarea,select{font:inherit;color:inherit;}
 .notif-empty svg,.notif-signin svg{width:38px;height:38px;stroke:var(--accent);fill:none;stroke-width:1.4;margin-bottom:14px;}
 .notif-error{text-align:center;padding:40px 20px;color:var(--text-muted);font-size:.9rem;}
 
+/* My Orders */
+.myorders-card{cursor:default;}
+.myorders-top{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-top:6px;}
+.myorders-meta{color:var(--text-muted);font-size:.8rem;margin-top:8px;display:flex;flex-wrap:wrap;gap:4px 16px;line-height:1.6;}
+.myorders-tag{color:var(--text-muted);font-size:.72rem;letter-spacing:.04em;font-variant-numeric:tabular-nums;}
+.order-status-pill{
+  display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:100px;
+  font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;
+}
+.order-status-pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;}
+.order-status-pending{background:color-mix(in srgb,#D5573B 13%,transparent);color:#D5573B;border:1px solid color-mix(in srgb,#D5573B 38%,transparent);}
+.order-status-confirmed,.order-status-inprogress,.order-status-processing{background:color-mix(in srgb,var(--accent) 13%,transparent);color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 38%,transparent);}
+.order-status-completed,.order-status-delivered,.order-status-approved{background:color-mix(in srgb,#1F9D55 13%,transparent);color:#1F9D55;border:1px solid color-mix(in srgb,#1F9D55 38%,transparent);}
+.order-status-cancelled,.order-status-rejected{background:color-mix(in srgb,#A33 13%,transparent);color:#C93;border:1px solid color-mix(in srgb,#C93 38%,transparent);}
+
 /* Profile modal */
 .profile-role-pill{
   display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:100px;
@@ -1068,6 +1083,7 @@ input,textarea,select{font:inherit;color:inherit;}
       <a href="#pricing" class="nav-link" data-nav data-page="pricing">Pricing</a>
       <a href="#portfolio" class="nav-link" data-nav data-page="portfolio">Portfolio</a>
       <a href="#order" class="nav-link nav-cta" data-nav data-page="order">Order Now</a>
+      <a href="#my-orders" class="nav-link" data-nav data-page="my-orders">My Orders</a>
       <a href="#faq" class="nav-link" data-nav data-page="faq">FAQ</a>
       <a href="#contact" class="nav-link" data-nav data-page="contact">Contact</a>
     </nav>
@@ -1095,6 +1111,10 @@ input,textarea,select{font:inherit;color:inherit;}
           <button class="user-dropdown-item" data-user-menu="profile" role="menuitem">
             <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             My Profile
+          </button>
+          <button class="user-dropdown-item" data-user-menu="my-orders" role="menuitem">
+            <svg viewBox="0 0 24 24"><path d="M6 2h12l2 6-8 14L4 8l2-6z"/><path d="M4 8h16"/><path d="M12 22V8"/></svg>
+            My Orders
           </button>
           <button class="user-dropdown-item danger" id="googleLogoutBtn" role="menuitem">
             <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
@@ -1722,6 +1742,30 @@ input,textarea,select{font:inherit;color:inherit;}
   </section>
 </div>
 
+<div class="page" id="my-orders">
+  <div class="page-hero">
+    <p class="eyebrow">Track your requests</p>
+    <h1>My Orders</h1>
+    <p>Every invitation order you've placed with IS Digital Platform, saved to your Google account.</p>
+  </div>
+  <section class="section" style="padding-top:30px;">
+    <div class="container notif-container">
+      <div class="notif-list" id="myOrdersList" aria-live="polite"></div>
+
+      <div class="notif-empty" id="myOrdersEmpty" hidden>
+        <svg viewBox="0 0 24 24" fill="none"><path d="M6 2h12l2 6-8 14L4 8l2-6z"/><path d="M4 8h16"/><path d="M12 22V8"/></svg>
+        <div>No orders yet. Place your first order and it will appear here.</div>
+        <a href="#order" data-page="order" class="btn btn-primary" style="margin-top:16px">Place an Order</a>
+      </div>
+
+      <div class="notif-signin" id="myOrdersSignin" hidden>
+        <svg viewBox="0 0 24 24" fill="none"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <div>Sign in with Google to see your orders.</div>
+      </div>
+    </div>
+  </section>
+</div>
+
 <!-- ============ FOOTER ============ -->
 <footer class="footer">
   <div class="jali-veil" style="opacity:.18"></div>
@@ -1744,6 +1788,7 @@ input,textarea,select{font:inherit;color:inherit;}
       <a href="#pricing" data-page="pricing">Pricing</a>
       <a href="#portfolio" data-page="portfolio">Portfolio</a>
       <a href="#order" data-page="order">Order Now</a>
+      <a href="#my-orders" data-page="my-orders">My Orders</a>
     </div>
     <div class="footer-col">
       <h4>Company</h4>
@@ -1877,6 +1922,7 @@ document.addEventListener("DOMContentLoaded", () => {
       googleLoginBtn.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg><span class="google-login-text">Sign in</span>';
     }
     window.dispatchEvent(new Event("ts-auth-changed"));
+    prefillOrderFromUser();
   }
 
   googleLoginBtn.addEventListener("click", (e) => {
@@ -2060,9 +2106,11 @@ document.addEventListener("DOMContentLoaded", () => {
       counters.forEach(c => { c.textContent = "0"; });
       setTimeout(() => counters.forEach(c => animateCounter(c)), 250);
     }
+    if (id === "order") prefillOrderFromUser();
+    if (id === "my-orders") renderMyOrders();
     document.title = id === "home"
       ? "IS Digital Platform — Invitations, Carved in Light"
-      : "IS Digital Platform — " + id.charAt(0).toUpperCase() + id.slice(1);
+      : "IS Digital Platform — " + (id === "my-orders" ? "My Orders" : id.charAt(0).toUpperCase() + id.slice(1));
   }
 
   function goToPage(pageId){
@@ -2138,9 +2186,95 @@ document.addEventListener("DOMContentLoaded", () => {
       refreshOrderAccess(user, pageId);
       return;
     }
+    if (pageId === "my-orders") {
+      const user = getTsUser();
+      if (!user) {
+        showToast("Please sign in with Google to view your orders", "error");
+        googleModal.classList.add("open");
+        return;
+      }
+      goToPage(pageId);
+      renderMyOrders();
+      return;
+    }
     goToPage(pageId);
   }
   window.navigateTo = navigateTo;
+
+  /* ---------------- My Orders ---------------- */
+  function esc(str){
+    return String(str == null ? "" : str)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+  const MY_ORDERS_PLANS = {
+    basic: "Basic Plan", premium: "Premium Plan", animated: "Animated Invitation", website: "Luxury Website Invitation",
+  };
+  function orderCardHTML(o){
+    const plan = MY_ORDERS_PLANS[o.package] || o.package || "Invitation";
+    const status = (o.status || "pending").toLowerCase();
+    const created = o.createdAt ? new Date(o.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "";
+    return '<div class="notif-card myorders-card">' +
+      '<div class="notif-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M6 2h12l2 6-8 14L4 8l2-6z"/><path d="M4 8h16"/><path d="M12 22V8"/></svg></div>' +
+      '<div class="notif-body">' +
+        '<div class="notif-head">' +
+          '<span class="notif-title">' + esc(o.eventType || "Order") + ' — ' + esc(plan) + '</span>' +
+          '<span class="notif-time">' + created + '</span>' +
+        '</div>' +
+        '<div class="myorders-top">' +
+          '<span class="order-status-pill order-status-' + status + '">' + esc(status) + '</span>' +
+          '<span class="myorders-tag">Order #' + esc(String(o.id || "").slice(0, 8)) + '</span>' +
+        '</div>' +
+        '<div class="myorders-meta">' +
+          '<span>Event: ' + esc(o.eventType || "—") + '</span>' +
+          '<span>Date: ' + esc(o.eventDate || "—") + '</span>' +
+          '<span>Venue: ' + esc(o.venueName || "—") + '</span>' +
+          (o.venueCity ? '<span>City: ' + esc(o.venueCity) + '</span>' : "") +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+  async function renderMyOrders(){
+    const listEl = document.getElementById("myOrdersList");
+    if (!listEl) return;
+    const emptyEl = document.getElementById("myOrdersEmpty");
+    const signinEl = document.getElementById("myOrdersSignin");
+    const user = getTsUser();
+    if (!user || !user.id) {
+      listEl.innerHTML = "";
+      if (emptyEl) emptyEl.hidden = true;
+      if (signinEl) signinEl.hidden = false;
+      return;
+    }
+    if (emptyEl) emptyEl.hidden = true;
+    if (signinEl) signinEl.hidden = true;
+    listEl.classList.add("is-loading");
+    listEl.innerHTML = '<div class="notif-error">Loading your orders...</div>';
+    try {
+      const resp = await fetch("/api/my-orders", { headers: { "x-user-id": user.id } });
+      const data = await resp.json();
+      listEl.classList.remove("is-loading");
+      if (data && data.success && data.orders && data.orders.length) {
+        listEl.innerHTML = data.orders.map(orderCardHTML).join("");
+        if (emptyEl) emptyEl.hidden = true;
+      } else {
+        listEl.innerHTML = "";
+        if (emptyEl) emptyEl.hidden = false;
+      }
+    } catch (err) {
+      listEl.classList.remove("is-loading");
+      listEl.innerHTML = '<div class="notif-error">Could not load your orders. Please try again.</div>';
+    }
+  }
+  function prefillOrderFromUser(){
+    const user = getTsUser();
+    if (!user || !user.id) return;
+    const cname = document.getElementById("cname");
+    const email = document.getElementById("email");
+    if (cname && !cname.value.trim() && user.name) cname.value = user.name;
+    if (email && !email.value.trim() && user.email) email.value = user.email;
+  }
+  window.renderMyOrders = renderMyOrders;
 
   document.addEventListener("click", (e) => {
     const link = e.target.closest("[data-page]");

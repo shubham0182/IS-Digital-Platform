@@ -210,6 +210,14 @@ app.post("/api/orders", orderLimiter, upload.array("photos", 6), (req, res) => {
       createdAt: new Date().toISOString(),
       status: "pending",
     };
+    if (order.userId) {
+      const orderingUser = getUserById(order.userId);
+      if (orderingUser) {
+        order.userName = orderingUser.name;
+        order.userEmail = orderingUser.email;
+        order.userPicture = orderingUser.picture || "";
+      }
+    }
     const orders = readJSON("orders.json");
     orders.push(order);
     writeJSON("orders.json", orders);
@@ -240,6 +248,15 @@ app.post("/api/orders", orderLimiter, upload.array("photos", 6), (req, res) => {
     console.error("Order error:", err);
     res.status(500).json({ success: false, error: "Something went wrong. Please try again." });
   }
+});
+
+/* A signed-in user's own orders, newest first. */
+app.get("/api/my-orders", requireUser, apiLimiter, (req, res) => {
+  const orders = readJSON("orders.json");
+  const mine = orders
+    .filter(o => o.userId === req.authUser.id)
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  res.json({ success: true, orders: mine });
 });
 
 app.post("/api/contact", apiLimiter, (req, res) => {

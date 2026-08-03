@@ -299,6 +299,7 @@
     var action = item.dataset.userMenu;
     if (action === "notifications") { goToLink("#notifications"); }
     else if (action === "profile") { openProfile(); }
+    else if (action === "my-orders") { goToLink("#my-orders"); }
   }
 
   // ---- Firebase Cloud Messaging (web push) ----------------------
