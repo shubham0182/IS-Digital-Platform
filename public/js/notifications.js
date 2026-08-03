@@ -223,6 +223,22 @@
   }
 
   // ---- Profile modal -------------------------------------------
+  function renderProfileAvatar(user) {
+    var img = $("profileAvatar");
+    var ph = $("profileAvatarPlaceholder");
+    if (!img || !ph) return;
+    if (user && user.picture) {
+      img.src = user.picture;
+      img.hidden = false;
+      ph.hidden = true;
+    } else {
+      img.removeAttribute("src");
+      img.hidden = true;
+      ph.hidden = false;
+      var name = (user && user.name) || "U";
+      ph.textContent = name.trim().split(/\s+/).map(function (w) { return w[0] || ""; }).slice(0, 2).join("").toUpperCase() || "U";
+    }
+  }
   function openProfile() {
     var overlay = $("profileModal");
     if (!overlay) return;
@@ -234,10 +250,69 @@
     $("profilePhone").value = user.phone || "";
     $("profileCity").value = user.city || "";
     $("profileRole").textContent = (user.role === "admin" ? "Admin" : "User");
+    renderProfileAvatar(user);
   }
   function closeProfile() {
     var overlay = $("profileModal");
     if (overlay) overlay.classList.remove("open");
+  }
+  function resizeImageFile(file, maxSize, cb) {
+    if (!file) return cb(null);
+    if (!/^image\/(png|jpe?g|webp|gif)$/i.test(file.type)) return cb(new Error("Please choose an image file"));
+    var reader = new FileReader();
+    reader.onload = function () {
+      var img = new Image();
+      img.onload = function () {
+        var w = img.width, h = img.height;
+        var scale = Math.min(1, maxSize / Math.max(w, h));
+        var canvas = document.createElement("canvas");
+        canvas.width = Math.round(w * scale);
+        canvas.height = Math.round(h * scale);
+        var ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        cb(null, canvas.toDataURL("image/jpeg", 0.82));
+      };
+      img.onerror = function () { cb(new Error("Could not read image")); };
+      img.src = reader.result;
+    };
+    reader.onerror = function () { cb(new Error("Could not read file")); };
+    reader.readAsDataURL(file);
+  }
+  function handleProfilePicChange(e) {
+    var input = e.target;
+    var file = input.files && input.files[0];
+    if (!file) return;
+    resizeImageFile(file, 256, function (err, dataUrl) {
+      if (err || !dataUrl) { toast((err && err.message) || "Could not process image", "error"); input.value = ""; return; }
+      var img = $("profileAvatar");
+      if (img) { img.src = dataUrl; img.hidden = false; }
+      var ph = $("profileAvatarPlaceholder");
+      if (ph) ph.hidden = true;
+      var user = getUser();
+      if (!user) return;
+      var btn = $("profileSave");
+      var orig = btn.textContent;
+      btn.textContent = "Uploading...";
+      btn.disabled = true;
+      apiSend("/api/users/me", "PUT", { picture: dataUrl }).then(function (d) {
+        if (d && d.success) {
+          user.picture = d.user.picture;
+          try { localStorage.setItem(STORE_KEY, JSON.stringify(user)); } catch (e2) {}
+          if (typeof window.updateGoogleBtn === "function") window.updateGoogleBtn();
+          toast("Profile photo updated");
+          renderProfileAvatar(user);
+        } else {
+          toast((d && d.error) || "Failed to update photo", "error");
+          renderProfileAvatar(user);
+        }
+      }).catch(function () { toast("Network error. Please try again.", "error"); renderProfileAvatar(user); })
+        .finally(function () { btn.textContent = orig; btn.disabled = false; input.value = ""; });
+    });
+  }
+  function goToMyOrders() {
+    closeProfile();
+    if (typeof window.navigateTo === "function") { window.navigateTo("my-orders"); }
+    else { window.location.hash = "my-orders"; }
   }
   function saveProfile() {
     var btn = $("profileSave");
@@ -255,8 +330,10 @@
           user.name = d.user.name;
           user.phone = d.user.phone;
           user.city = d.user.city;
+          if (d.user.picture) user.picture = d.user.picture;
           try { localStorage.setItem(STORE_KEY, JSON.stringify(user)); } catch (e) {}
           if (typeof window.updateGoogleBtn === "function") window.updateGoogleBtn();
+          renderProfileAvatar(user);
         }
         toast("Profile updated");
         closeProfile();
@@ -372,6 +449,8 @@
     // Profile modal
     if ($("profileSave")) $("profileSave").addEventListener("click", saveProfile);
     if ($("profileClose")) $("profileClose").addEventListener("click", closeProfile);
+    if ($("profileMyOrders")) $("profileMyOrders").addEventListener("click", goToMyOrders);
+    if ($("profilePicInput")) $("profilePicInput").addEventListener("change", handleProfilePicChange);
     var pm = $("profileModal");
     if (pm) pm.addEventListener("click", function (e) { if (e.target === pm) closeProfile(); });
     document.addEventListener("keydown", function (e) {

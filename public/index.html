@@ -955,6 +955,29 @@ input,textarea,select{font:inherit;color:inherit;}
   border:1px solid var(--border);font-size:.7rem;font-weight:700;color:var(--accent);
   text-transform:uppercase;letter-spacing:.08em;margin-left:8px;
 }
+.profile-avatar-wrap{position:relative;width:96px;height:96px;margin:0 auto 14px;}
+.profile-avatar{
+  width:96px;height:96px;border-radius:50%;object-fit:cover;display:block;
+  border:3px solid var(--accent);background:var(--bg);
+}
+.profile-avatar-placeholder{
+  width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-size:2.1rem;font-weight:700;color:#fff;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+}
+.profile-avatar-upload{
+  position:absolute;right:-4px;bottom:-4px;width:32px;height:32px;border-radius:50%;
+  background:var(--accent);border:2px solid var(--bg-alt);color:#fff;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  box-shadow:0 2px 8px rgba(0,0,0,.4);transition:transform .2s;
+}
+.profile-avatar-upload:hover{transform:scale(1.12);}
+.profile-avatar-upload svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.profile-modal-actions{display:flex;flex-direction:column;gap:10px;}
+.profile-myorders-btn{
+  background:var(--bg);border:1px solid var(--border);color:var(--text-muted);
+}
+.profile-myorders-btn:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-2px);}
 
 @media(max-width:720px){
   .notif-toolbar{gap:10px;}
@@ -1033,7 +1056,14 @@ input,textarea,select{font:inherit;color:inherit;}
   <div class="google-modal">
     <button class="google-modal-close" id="profileClose">&times;</button>
     <div class="google-modal-header">
-      <img id="profileAvatar" class="profile-avatar" alt="Profile photo" style="width:72px;height:72px;border-radius:50%;object-fit:cover;margin-bottom:12px;border:3px solid var(--accent);">
+      <div class="profile-avatar-wrap">
+        <div class="profile-avatar-placeholder" id="profileAvatarPlaceholder"></div>
+        <img id="profileAvatar" class="profile-avatar" alt="Profile photo" hidden>
+        <label class="profile-avatar-upload" for="profilePicInput" title="Change photo">
+          <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </label>
+        <input type="file" id="profilePicInput" accept="image/*" hidden>
+      </div>
       <h3>My Profile</h3>
       <span class="profile-role-pill" id="profileRole">User</span>
     </div>
@@ -1054,7 +1084,10 @@ input,textarea,select{font:inherit;color:inherit;}
         <label for="profileCity">City</label>
         <input type="text" id="profileCity" maxlength="60" placeholder="Your city">
       </div>
-      <button class="btn btn-primary btn-block" id="profileSave" type="button">Save Changes</button>
+      <div class="profile-modal-actions">
+        <button class="btn btn-block profile-myorders-btn" id="profileMyOrders" type="button">My Orders</button>
+        <button class="btn btn-primary btn-block" id="profileSave" type="button">Save Changes</button>
+      </div>
     </div>
   </div>
 </div>

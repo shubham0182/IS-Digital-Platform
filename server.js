@@ -452,13 +452,21 @@ app.get("/api/users/me", requireUser, apiLimiter, (req, res) => {
 
 app.put("/api/users/me", requireUser, apiLimiter, (req, res) => {
   try {
-    const { name, phone, city } = req.body || {};
+    const { name, phone, city, picture } = req.body || {};
     const users = readJSON("users.json");
     const u = users.find(x => x.id === req.authUser.id);
     if (!u) return res.status(404).json({ success: false, error: "User not found" });
     if (typeof name === "string" && name.trim()) u.name = name.trim().slice(0, 80);
     if (typeof phone === "string") u.phone = phone.trim().slice(0, 20);
     if (typeof city === "string") u.city = city.trim().slice(0, 60);
+    if (typeof picture === "string" && picture.trim()) {
+      const p = picture.trim();
+      const isDataUrl = p.startsWith("data:image/") && p.indexOf(";base64,") > -1;
+      const isUrl = /^https?:\/\//.test(p);
+      if (!isDataUrl && !isUrl) return res.status(400).json({ success: false, error: "Invalid profile picture" });
+      if (isDataUrl && p.length > 500000) return res.status(400).json({ success: false, error: "Profile picture is too large" });
+      u.picture = p;
+    }
     u.updatedAt = nowISO();
     writeJSON("users.json", users);
     createNotification({
