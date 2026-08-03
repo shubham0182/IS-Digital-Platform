@@ -17,6 +17,7 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
 
 <style>
 /* ============================================================
@@ -821,6 +822,112 @@ input,textarea,select{font:inherit;color:inherit;}
 }
 
 /* ============================================================
+   NOTIFICATIONS — bell, badge, dropdown, center, profile modal
+   ============================================================ */
+.notif-bell{position:relative;}
+.notif-badge{
+  position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;
+  padding:0 4px;border-radius:100px;background:#E85454;color:#fff;
+  font-size:.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;
+  border:2px solid var(--bg);line-height:1;
+}
+
+/* User chip dropdown */
+.user-menu-wrap{position:relative;}
+.user-dropdown{
+  position:absolute;top:calc(100% + 10px);right:0;z-index:1200;min-width:230px;
+  background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius-m);
+  box-shadow:var(--shadow);padding:8px;opacity:0;visibility:hidden;transform:translateY(-8px) scale(.98);
+  transform-origin:top right;transition:opacity .22s var(--ease),transform .22s var(--ease),visibility .22s;
+}
+.user-dropdown.open{opacity:1;visibility:visible;transform:translateY(0) scale(1);}
+.user-dropdown-head{
+  display:flex;align-items:center;gap:10px;padding:10px 12px 12px;margin-bottom:6px;
+  border-bottom:1px dashed var(--border);
+}
+.user-dropdown-id{min-width:0;}
+.user-dropdown-id strong{display:block;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.user-dropdown-id span{display:block;font-size:.72rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;}
+.user-dropdown-item{
+  width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;
+  font-size:.86rem;font-weight:600;color:var(--text);text-align:left;transition:background .18s,color .18s;
+}
+.user-dropdown-item:hover{background:var(--surface);}
+.user-dropdown-item svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+.user-dropdown-item.danger:hover{background:rgba(232,84,84,0.12);color:#E85454;}
+.user-dropdown-unread{
+  margin-left:auto;min-width:20px;height:18px;padding:0 6px;border-radius:100px;
+  background:#E85454;color:#fff;font-size:.62rem;font-weight:800;display:inline-flex;align-items:center;justify-content:center;
+}
+.user-chip-caret{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+
+/* Notification center page */
+.notif-container{max-width:760px;}
+.notif-toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:34px 0 24px;}
+.notif-search{
+  flex:1;min-width:220px;display:flex;align-items:center;gap:10px;
+  padding:11px 15px;border-radius:100px;border:1px solid var(--border);background:var(--surface);
+  transition:border-color .25s;
+}
+.notif-search:focus-within{border-color:var(--accent);}
+.notif-search svg{width:17px;height:17px;stroke:var(--text-muted);fill:none;stroke-width:1.8;flex-shrink:0;}
+.notif-search input{flex:1;background:none;border:none;outline:none;color:var(--text);font:inherit;font-size:.9rem;}
+.notif-filters{display:flex;gap:6px;}
+.notif-filter{
+  padding:8px 16px;border-radius:100px;border:1px solid var(--border);font-size:.8rem;font-weight:700;
+  color:var(--text-muted);transition:.25s;
+}
+.notif-filter:hover{color:var(--text);}
+.notif-filter.active{background:var(--accent);color:#241305;border-color:var(--accent);}
+.notif-list{display:flex;flex-direction:column;gap:10px;min-height:80px;}
+.notif-list.is-loading{opacity:.55;pointer-events:none;}
+.notif-card{
+  display:flex;gap:14px;align-items:flex-start;padding:16px 18px;
+  border:1px solid var(--border);border-radius:var(--radius-m);background:var(--surface-strong);
+  cursor:pointer;transition:border-color .25s,transform .25s,background .25s;position:relative;
+}
+.notif-card:hover{border-color:var(--accent);transform:translateY(-2px);}
+.notif-card.unread{border-left:3px solid var(--accent);background:color-mix(in srgb, var(--accent) 7%, transparent);}
+.notif-icon{
+  width:42px;height:42px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,var(--maroon),var(--maroon-deep));color:var(--gold-light);
+}
+.notif-icon svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.notif-body{flex:1;min-width:0;}
+.notif-head{display:flex;align-items:baseline;gap:10px;justify-content:space-between;}
+.notif-title{font-family:var(--font-display);font-weight:600;font-size:.98rem;}
+.notif-card.unread .notif-title{color:var(--accent-2);}
+.notif-time{font-size:.72rem;color:var(--text-muted);white-space:nowrap;flex-shrink:0;}
+.notif-msg{color:var(--text-muted);font-size:.86rem;margin-top:4px;line-height:1.5;overflow-wrap:anywhere;}
+.notif-actions{display:flex;gap:6px;flex-shrink:0;}
+.notif-act{
+  width:32px;height:32px;border-radius:9px;border:1px solid var(--border);background:var(--surface);
+  color:var(--text-muted);display:flex;align-items:center;justify-content:center;transition:.2s;cursor:pointer;
+}
+.notif-act:hover{border-color:var(--accent);color:var(--accent);}
+.notif-act svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.notif-empty,.notif-signin{
+  text-align:center;padding:60px 24px;color:var(--text-muted);border:1px dashed var(--border);
+  border-radius:var(--radius-m);font-size:.92rem;
+}
+.notif-empty svg,.notif-signin svg{width:38px;height:38px;stroke:var(--accent);fill:none;stroke-width:1.4;margin-bottom:14px;}
+.notif-error{text-align:center;padding:40px 20px;color:var(--text-muted);font-size:.9rem;}
+
+/* Profile modal */
+.profile-role-pill{
+  display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:100px;
+  border:1px solid var(--border);font-size:.7rem;font-weight:700;color:var(--accent);
+  text-transform:uppercase;letter-spacing:.08em;margin-left:8px;
+}
+
+@media(max-width:720px){
+  .notif-toolbar{gap:10px;}
+  .notif-card{padding:14px;}
+  .notif-head{flex-direction:column;gap:2px;}
+  .notif-time{white-space:normal;}
+}
+
+/* ============================================================
    RESPONSIVE
    ============================================================ */
 @media(max-width:1000px){
@@ -885,6 +992,37 @@ input,textarea,select{font:inherit;color:inherit;}
   </div>
 </div>
 
+<!-- ============ PROFILE MODAL ============ -->
+<div class="google-modal-overlay profile-modal" id="profileModal">
+  <div class="google-modal">
+    <button class="google-modal-close" id="profileClose">&times;</button>
+    <div class="google-modal-header">
+      <img id="profileAvatar" class="profile-avatar" alt="Profile photo" style="width:72px;height:72px;border-radius:50%;object-fit:cover;margin-bottom:12px;border:3px solid var(--accent);">
+      <h3>My Profile</h3>
+      <span class="profile-role-pill" id="profileRole">User</span>
+    </div>
+    <div class="google-modal-body">
+      <div class="field">
+        <label for="profileName">Full name</label>
+        <input type="text" id="profileName" maxlength="60" placeholder="Your name">
+      </div>
+      <div class="field">
+        <label for="profileEmail">Email</label>
+        <input type="email" id="profileEmail" disabled placeholder="you@example.com" style="opacity:.6;">
+      </div>
+      <div class="field">
+        <label for="profilePhone">Phone</label>
+        <input type="tel" id="profilePhone" maxlength="20" placeholder="+91 ...">
+      </div>
+      <div class="field">
+        <label for="profileCity">City</label>
+        <input type="text" id="profileCity" maxlength="60" placeholder="Your city">
+      </div>
+      <button class="btn btn-primary btn-block" id="profileSave" type="button">Save Changes</button>
+    </div>
+  </div>
+</div>
+
 <!-- shared SVG defs: tier pattern for dividers -->
 <svg width="0" height="0" style="position:absolute">
   <defs>
@@ -914,14 +1052,35 @@ input,textarea,select{font:inherit;color:inherit;}
     </nav>
 
     <div class="nav-actions">
+      <button id="notifBell" class="icon-btn notif-bell" aria-label="Notifications" title="Notifications" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="notif-badge" id="notifBadge" hidden>0</span>
+      </button>
       <button id="themeToggle" class="icon-btn" aria-label="Toggle dark and light mode">
         <svg class="icon-sun" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="5"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="18.4" y1="18.4" x2="19.8" y2="19.8"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.2" y1="19.8" x2="5.6" y2="18.4"/><line x1="18.4" y1="5.6" x2="19.8" y2="4.2"/></g></svg>
         <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.5A9 9 0 1 1 11.5 3a7 7 0 0 0 9.5 9.5Z"/></svg>
       </button>
-      <button id="googleLoginBtn" class="google-login-btn" aria-label="Sign in with Google">
-        <svg viewBox="0 0 24 24" width="18" height="18"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-        <span class="google-login-text">Sign in</span>
-      </button>
+      <div class="user-menu-wrap" id="userMenuWrap">
+        <button id="googleLoginBtn" class="google-login-btn" aria-label="Account menu">
+          <svg viewBox="0 0 24 24" width="18" height="18"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          <span class="google-login-text">Sign in</span>
+        </button>
+        <div class="user-dropdown" id="userDropdown" role="menu">
+          <div class="user-dropdown-head" id="userDropdownHead"></div>
+          <button class="user-dropdown-item" data-user-menu="notifications" role="menuitem">
+            <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            Notifications <span class="user-dropdown-unread" id="userDropdownUnread" hidden>0</span>
+          </button>
+          <button class="user-dropdown-item" data-user-menu="profile" role="menuitem">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            My Profile
+          </button>
+          <button class="user-dropdown-item danger" id="googleLogoutBtn" role="menuitem">
+            <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Sign Out
+          </button>
+        </div>
+      </div>
       <button id="menuToggle" class="menu-toggle" aria-label="Open menu" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
@@ -1503,6 +1662,43 @@ input,textarea,select{font:inherit;color:inherit;}
 </section>
 </div><!-- /page contact -->
 
+<!-- ============ PAGE: NOTIFICATIONS ============ -->
+<div class="page" id="notifications">
+  <div class="page-hero">
+    <p class="eyebrow">Stay in the loop</p>
+    <h1>Notifications</h1>
+    <p>Every update from IS Digital Platform — orders, account alerts and announcements.</p>
+  </div>
+  <section class="section" style="padding-top:30px;">
+    <div class="container notif-container">
+      <div class="notif-toolbar">
+        <div class="notif-search">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="notifSearch" placeholder="Search notifications..." aria-label="Search notifications">
+        </div>
+        <div class="notif-filters" id="notifFilters">
+          <button class="notif-filter active" data-filter="all" type="button">All</button>
+          <button class="notif-filter" data-filter="unread" type="button">Unread</button>
+          <button class="notif-filter" data-filter="read" type="button">Read</button>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="notifMarkAll" type="button">Mark all as read</button>
+      </div>
+
+      <div class="notif-list" id="notifList" aria-live="polite"></div>
+
+      <div class="notif-empty" id="notifEmpty" hidden>
+        <svg viewBox="0 0 24 24" fill="none"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <div>No notifications found.</div>
+      </div>
+
+      <div class="notif-signin" id="notifSignin" hidden>
+        <svg viewBox="0 0 24 24" fill="none"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <div>Sign in with Google to see your notifications.</div>
+      </div>
+    </div>
+  </section>
+</div>
+
 <!-- ============ FOOTER ============ -->
 <footer class="footer">
   <div class="jali-veil" style="opacity:.18"></div>
@@ -1629,6 +1825,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const googleModalClose = document.getElementById("googleModalClose");
   const googleSubmitBtn = document.getElementById("googleSubmitBtn");
   const googleModalStatus = document.getElementById("googleModalStatus");
+  const userDropdown = document.getElementById("userDropdown");
 
   function getTsUser() {
     try { return JSON.parse(localStorage.getItem("ts-user")); } catch(e) { return null; }
@@ -1642,35 +1839,48 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateGoogleBtn() {
     const user = getTsUser();
-    if (user && user.status === "approved") {
+    const loggedIn = !!(user && user.id);
+    window.updateGoogleBtn = updateGoogleBtn;
+    window.getTsUser = getTsUser;
+    if (loggedIn) {
       googleLoginBtn.classList.add("logged-in");
       googleLoginBtn.innerHTML = (user.picture ? '<img class="google-user-avatar" src="' + user.picture + '" alt="">' : '') +
-        '<span class="google-user-name">' + user.name.split(" ")[0] + '</span>' +
-        '<button class="google-logout-btn" type="button" id="googleLogoutBtn">Sign Out</button>';
-      document.getElementById("googleLogoutBtn").addEventListener("click", (e) => {
-        e.stopPropagation();
-        firebaseAuth.signOut().catch(() => {});
-        clearTsUser();
-        updateGoogleBtn();
-        showToast("Signed out successfully");
-      });
-    } else if (user && (user.status === "pending" || user.status === "rejected")) {
-      googleLoginBtn.classList.add("logged-in");
-      googleLoginBtn.innerHTML = (user.picture ? '<img class="google-user-avatar" src="' + user.picture + '" alt="">' : '') +
-        '<span class="google-user-name">' + user.name.split(" ")[0] + '</span>' +
-        '<button class="google-logout-btn" type="button" id="googleLogoutBtn">Sign Out</button>';
-      document.getElementById("googleLogoutBtn").addEventListener("click", (e) => {
-        e.stopPropagation();
-        firebaseAuth.signOut().catch(() => {});
-        clearTsUser();
-        updateGoogleBtn();
-        showToast("Signed out successfully");
-      });
+        '<span class="google-user-name">' + (user.name || "User").split(" ")[0] + '</span>' +
+        '<svg class="user-chip-caret" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>';
     } else {
       googleLoginBtn.classList.remove("logged-in");
       googleLoginBtn.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg><span class="google-login-text">Sign in</span>';
     }
+    window.dispatchEvent(new Event("ts-auth-changed"));
   }
+
+  googleLoginBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const user = getTsUser();
+    if (user && user.id) {
+      if (window.Notifications && typeof window.Notifications.toggleUserMenu === "function") {
+        window.Notifications.toggleUserMenu();
+      } else {
+        userDropdown.classList.toggle("open");
+      }
+      return;
+    }
+    googleModal.classList.add("open");
+    googleModalStatus.style.display = "none";
+  });
+  document.addEventListener("click", (e) => {
+    if (e.target === googleModal) googleModal.classList.remove("open");
+  });
+
+  function doSignOut(){
+    firebaseAuth.signOut().catch(() => {});
+    clearTsUser();
+    userDropdown.classList.remove("open");
+    updateGoogleBtn();
+    showToast("Signed out successfully");
+  }
+  document.getElementById("googleLogoutBtn").addEventListener("click", doSignOut);
+
   updateGoogleBtn();
 
   let syncing = false;
@@ -1719,22 +1929,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  googleLoginBtn.addEventListener("click", () => {
-    const user = getTsUser();
-    if (user && user.status === "approved") return;
-    if (user && user.status === "pending") {
-      showToast("Your account is pending admin approval");
-      return;
-    }
-    if (user && user.status === "rejected") {
-      clearTsUser();
-    }
-    googleModal.classList.add("open");
-    googleModalStatus.style.display = "none";
-  });
-
   googleModalClose.addEventListener("click", () => googleModal.classList.remove("open"));
-  googleModal.addEventListener("click", (e) => { if (e.target === googleModal) googleModal.classList.remove("open"); });
 
   googleSubmitBtn.addEventListener("click", async () => {
     googleSubmitBtn.textContent = "Opening Google sign-in...";
@@ -1860,6 +2055,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (("#" + pageId) === location.hash) showPage(pageId);
     else location.hash = pageId;
   }
+  window.navigateTo = navigateTo;
 
   document.addEventListener("click", (e) => {
     const link = e.target.closest("[data-page]");
@@ -1894,6 +2090,7 @@ document.addEventListener("DOMContentLoaded", () => {
     container.appendChild(toast);
     setTimeout(() => { toast.classList.add("out"); setTimeout(() => toast.remove(), 300); }, 3200);
   }
+  window.showToast = showToast;
 
   /* ---------------- Services data ---------------- */
   const services = [
@@ -2891,5 +3088,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 </script>
+<script type="module" src="/js/notifications.js"></script>
 </body>
 </html>

@@ -46,6 +46,143 @@ function writeJSON(file, data) {
   fs.writeFileSync(path.join(DATA_DIR, file), JSON.stringify(data, null, 2), "utf8");
 }
 
+// ===================== NOTIFICATIONS =====================
+// Notifications are stored in data/notifications.json (one record per
+// recipient). Broadcasts fan out into one record per recipient at creation
+// time, which keeps reads trivial and matches the project's JSON store style.
+// A separate data/fcm_tokens.json maps userId -> [web push tokens].
+
+const NOTIF_FILE = "notifications.json";
+const FCM_TOKENS_FILE = "fcm_tokens.json";
+
+function nowISO() {
+  return new Date().toISOString();
+}
+
+function getNotifs() {
+  return readJSON(NOTIF_FILE);
+}
+function saveNotifs(list) {
+  writeJSON(NOTIF_FILE, list);
+}
+function getFcmTokens() {
+  return readJSON(FCM_TOKENS_FILE);
+}
+function saveFcmTokens(map) {
+  writeJSON(FCM_TOKENS_FILE, map);
+}
+
+function getApprovedUsers() {
+  return readJSON("users.json").filter(u => u.status === "approved");
+}
+function getUserById(id) {
+  return readJSON("users.json").find(u => u.id === id) || null;
+}
+
+/* Resolve the recipient ids for a notification.
+   - userId set  -> direct to that single user
+   - role "admin"-> all approved admin users
+   - role "all"  -> every approved user
+   - role "user" -> every approved regular user                        */
+function resolveNotificationRecipients({ userId, role }) {
+  if (userId) return [userId];
+  const users = getApprovedUsers();
+  if (role === "admin") return users.filter(u => u.role === "admin").map(u => u.id);
+  if (role === "all") return users.map(u => u.id);
+  return users.filter(u => (u.role || "user") === "user").map(u => u.id);
+}
+
+/* Create one notification per recipient. dedupeKey prevents the same event
+   being fired twice for the same recipient (e.g. repeated logins on a new
+   device, double order submissions). */
+function createNotification({ type, title, message, link = "#notifications", icon = "bell", userId = null, role = "user", dedupeKey = null, meta = {} }) {
+  if (!title || !message) return [];
+  const notifs = getNotifs();
+  const created = [];
+  const recipients = resolveNotificationRecipients({ userId, role });
+
+  recipients.forEach(uid => {
+    if (dedupeKey && notifs.some(n => n.userId === uid && n.dedupeKey === dedupeKey && !n.deleted)) return;
+    const notification = {
+      id: crypto.randomUUID(),
+      userId: uid,
+      type: type || "system",
+      title,
+      message,
+      link,
+      icon: icon || "bell",
+      read: false,
+      readAt: null,
+      deleted: false,
+      createdAt: nowISO(),
+      dedupeKey: dedupeKey || null,
+      meta: meta || {},
+    };
+    notifs.push(notification);
+    created.push(notification);
+  });
+
+  saveNotifs(notifs);
+  if (created.length) pushToRecipients(recipients, created[0]);
+  return created;
+}
+
+/* Convenience: notify every admin user of a system event. */
+function notifyAdmins(opts) {
+  return createNotification({ ...opts, role: "admin" });
+}
+
+/* A lightweight device fingerprint (UA + IP) used for new-device logins. */
+function deviceSignature(req) {
+  const ua = req.headers["user-agent"] || "unknown";
+  return crypto.createHash("sha1").update(ua + "|" + (req.ip || "")).digest("hex").slice(0, 12);
+}
+
+// ===================== FCM (web push) =====================
+// Server-side sending is optional: it activates only when a Firebase service
+// account file exists (config/firebase-service-account.json) or
+// FCM_SERVICE_ACCOUNT env var points to one. Without it, the in-app
+// notification system (badge + center) still works fully; the web push
+// client tokens are still registered so they are ready to use.
+
+let fcmReady = false;
+let firebaseAdmin = null;
+try { firebaseAdmin = require("firebase-admin"); } catch (e) { firebaseAdmin = null; }
+
+function initFcm() {
+  if (fcmReady) return true;
+  if (!firebaseAdmin) return false;
+  const saPath = process.env.FCM_SERVICE_ACCOUNT || path.join(__dirname, "config", "firebase-service-account.json");
+  if (!fs.existsSync(saPath)) return false;
+  try {
+    if (!firebaseAdmin.apps.length) {
+      firebaseAdmin.initializeApp({ credential: firebaseAdmin.credential.cert(require(saPath)) });
+    }
+    fcmReady = true;
+    return true;
+  } catch (e) {
+    console.warn("FCM init failed:", e.message);
+    return false;
+  }
+}
+
+function pushToRecipients(recipientIds, notif) {
+  if (!recipientIds.length || !initFcm()) return;
+  const tokensMap = getFcmTokens();
+  const tokens = [];
+  recipientIds.forEach(uid => {
+    (tokensMap[uid] || []).forEach(t => { if (!tokens.includes(t)) tokens.push(t); });
+  });
+  if (!tokens.length) return;
+  const link = (notif.link || "#notifications").replace(/^#/, "/");
+  firebaseAdmin.messaging().sendEachForMulticast({
+    tokens,
+    notification: { title: notif.title, body: notif.message, icon: "/logo.png" },
+    data: { notificationId: notif.id, type: notif.type || "", url: link },
+    webpush: { fcm_options: { link } },
+  }).catch(err => console.warn("FCM send error:", err.message));
+}
+
 app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false, crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" } }));
 app.use(compression());
 app.use(cors());
@@ -76,6 +213,28 @@ app.post("/api/orders", orderLimiter, upload.array("photos", 6), (req, res) => {
     const orders = readJSON("orders.json");
     orders.push(order);
     writeJSON("orders.json", orders);
+
+    // Notify the ordering user and every admin about the new order.
+    if (order.userId) {
+      createNotification({
+        type: "order_submitted",
+        title: "Order received",
+        message: "We've received your " + (body.eventType || "invitation") + " order. We'll reach out within 2 hours.",
+        link: "#order",
+        icon: "order",
+        userId: order.userId,
+        dedupeKey: "order:" + order.id,
+      });
+    }
+    notifyAdmins({
+      type: "order_submitted",
+      title: "New order received",
+      message: (body.cname || "A client") + " placed a " + (body.package || "") + " order for " + (body.eventType || "an event") + ".",
+      link: "/admin.html?section=orders",
+      icon: "order",
+      dedupeKey: "order-admin:" + order.id,
+    });
+
     res.json({ success: true, message: "Order submitted successfully! We'll reach out within 2 hours.", orderId: order.id });
   } catch (err) {
     console.error("Order error:", err);
@@ -93,8 +252,17 @@ app.post("/api/contact", apiLimiter, (req, res) => {
       return res.status(400).json({ success: false, error: "Please enter a valid email address." });
     }
     const contacts = readJSON("contacts.json");
-    contacts.push({ id: crypto.randomUUID(), name, email, message, createdAt: new Date().toISOString(), read: false });
+    const contact = { id: crypto.randomUUID(), name, email, message, createdAt: new Date().toISOString(), read: false };
+    contacts.push(contact);
     writeJSON("contacts.json", contacts);
+    notifyAdmins({
+      type: "contact_message",
+      title: "New contact message",
+      message: name + " (" + email + ") sent a message.",
+      link: "/admin.html?section=contacts",
+      icon: "mail",
+      dedupeKey: "contact:" + contact.id,
+    });
     res.json({ success: true, message: "Message sent! We'll reply within 24 hours." });
   } catch (err) {
     console.error("Contact error:", err);
@@ -107,6 +275,214 @@ function requireAdmin(req, res, next) {
   if (key !== ADMIN_KEY && key !== "ishu3") return res.status(403).json({ success: false, error: "Unauthorized" });
   next();
 }
+
+/* User-scoped requests are identified by the id stored in localStorage
+   (ts-user) and sent as x-user-id header, matching how the client already
+   sends userId with order/contact payloads. */
+function requireUser(req, res, next) {
+  const userId = (req.headers["x-user-id"] || req.query.userId || (req.body && req.body.userId) || "").trim();
+  if (!userId) return res.status(400).json({ success: false, error: "Missing user id" });
+  const user = getUserById(userId);
+  if (!user) return res.status(403).json({ success: false, error: "Unauthorized" });
+  req.authUser = user;
+  next();
+}
+
+/* Admin APIs accept either the legacy admin key or an approved admin-role user. */
+function requireAdminOrKey(req, res, next) {
+  const key = req.headers["x-admin-key"] || req.query.key;
+  if (key === ADMIN_KEY || key === "ishu3") return next();
+  const userId = req.headers["x-user-id"] || req.query.userId;
+  const user = userId ? getUserById(userId) : null;
+  if (user && user.role === "admin" && user.status === "approved") return next();
+  return res.status(403).json({ success: false, error: "Unauthorized" });
+}
+
+// ===================== NOTIFICATION APIs =====================
+
+/* Get the signed-in user's notifications (broadcasts included) with
+   optional search + filter + unread count. */
+app.get("/api/notifications", requireUser, apiLimiter, (req, res) => {
+  try {
+    const userId = req.authUser.id;
+    const q = (req.query.q || "").toLowerCase().trim();
+    const filter = req.query.filter || "all";
+    const limit = Math.min(parseInt(req.query.limit, 10) || 100, 300);
+
+    let list = getNotifs().filter(n => n.userId === userId && !n.deleted);
+    list.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    const unreadCount = list.filter(n => !n.read).length;
+    if (filter === "unread") list = list.filter(n => !n.read);
+    else if (filter === "read") list = list.filter(n => n.read);
+    if (q) list = list.filter(n => (n.title + " " + n.message).toLowerCase().includes(q));
+
+    res.json({ success: true, notifications: list.slice(0, limit), total: list.length, unreadCount });
+  } catch (err) {
+    console.error("Notifications error:", err);
+    res.status(500).json({ success: false, error: "Failed to load notifications" });
+  }
+});
+
+/* Lightweight poll used by the bell badge. */
+app.get("/api/notifications/unread-count", requireUser, apiLimiter, (req, res) => {
+  try {
+    const userId = req.authUser.id;
+    const unreadCount = getNotifs().filter(n => n.userId === userId && !n.deleted && !n.read).length;
+    res.json({ success: true, unreadCount });
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Failed to load unread count" });
+  }
+});
+
+/* Mark a single notification as read. */
+app.put("/api/notifications/:id/read", requireUser, apiLimiter, (req, res) => {
+  try {
+    const notifs = getNotifs();
+    const n = notifs.find(x => x.id === req.params.id && x.userId === req.authUser.id && !x.deleted);
+    if (!n) return res.status(404).json({ success: false, error: "Notification not found" });
+    if (!n.read) { n.read = true; n.readAt = nowISO(); saveNotifs(notifs); }
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Failed to update notification" });
+  }
+});
+
+/* Mark every notification for the user as read. */
+app.put("/api/notifications/read-all", requireUser, apiLimiter, (req, res) => {
+  try {
+    const notifs = getNotifs();
+    let changed = false;
+    notifs.forEach(n => {
+      if (n.userId === req.authUser.id && !n.deleted && !n.read) { n.read = true; n.readAt = nowISO(); changed = true; }
+    });
+    if (changed) saveNotifs(notifs);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Failed to update notifications" });
+  }
+});
+
+/* Delete (soft) a notification so the user stops seeing it while the
+   server keeps a history record for admins. */
+app.delete("/api/notifications/:id", requireUser, apiLimiter, (req, res) => {
+  try {
+    const notifs = getNotifs();
+    const n = notifs.find(x => x.id === req.params.id && x.userId === req.authUser.id && !x.deleted);
+    if (!n) return res.status(404).json({ success: false, error: "Notification not found" });
+    n.deleted = true;
+    n.deletedAt = nowISO();
+    saveNotifs(notifs);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Failed to delete notification" });
+  }
+});
+
+/* Create a notification / broadcast (admin key or admin-role user).
+   Used by the admin panel announcement composer and any integrations. */
+app.post("/api/notifications", requireAdminOrKey, apiLimiter, (req, res) => {
+  try {
+    const { type, title, message, link, icon, role, userId, dedupeKey } = req.body || {};
+    if (!title || !message) return res.status(400).json({ success: false, error: "Title and message are required" });
+    const created = createNotification({ type, title, message, link, icon, role: role || "user", userId: userId || null, dedupeKey });
+    res.json({ success: true, created: created.length, message: "Notification sent to " + created.length + " recipient(s)" });
+  } catch (err) {
+    console.error("Create notification error:", err);
+    res.status(500).json({ success: false, error: "Failed to create notification" });
+  }
+});
+
+/* Admin view: recent activity across all users. */
+app.get("/api/notifications/admin", requireAdmin, apiLimiter, (req, res) => {
+  try {
+    const q = (req.query.q || "").toLowerCase().trim();
+    const limit = Math.min(parseInt(req.query.limit, 10) || 100, 500);
+    let list = getNotifs().filter(n => !n.deleted);
+    list.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    if (q) list = list.filter(n => (n.title + " " + n.message + " " + (n.userId || "")).toLowerCase().includes(q));
+    const unreadCount = list.filter(n => !n.read).length;
+    res.json({ success: true, notifications: list.slice(0, limit), total: list.length, unreadCount });
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Failed to load notifications" });
+  }
+});
+
+/* Register / refresh an FCM web-push token for a user. */
+app.post("/api/notifications/fcm-token", requireUser, apiLimiter, (req, res) => {
+  try {
+    const { token } = req.body || {};
+    if (!token || typeof token !== "string" || token.length > 4096) {
+      return res.status(400).json({ success: false, error: "Invalid push token" });
+    }
+    const map = getFcmTokens();
+    const existing = (map[req.authUser.id] || []).filter(t => t.token !== token);
+    existing.push({ token, createdAt: nowISO() });
+    map[req.authUser.id] = existing.slice(-5);
+    saveFcmTokens(map);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Failed to save push token" });
+  }
+});
+
+// ===================== USER PROFILE =====================
+
+app.get("/api/users/me", requireUser, apiLimiter, (req, res) => {
+  const u = req.authUser;
+  res.json({ success: true, user: { id: u.id, name: u.name, email: u.email, picture: u.picture, status: u.status, role: u.role || "user", phone: u.phone || "", city: u.city || "" } });
+});
+
+app.put("/api/users/me", requireUser, apiLimiter, (req, res) => {
+  try {
+    const { name, phone, city } = req.body || {};
+    const users = readJSON("users.json");
+    const u = users.find(x => x.id === req.authUser.id);
+    if (!u) return res.status(404).json({ success: false, error: "User not found" });
+    if (typeof name === "string" && name.trim()) u.name = name.trim().slice(0, 80);
+    if (typeof phone === "string") u.phone = phone.trim().slice(0, 20);
+    if (typeof city === "string") u.city = city.trim().slice(0, 60);
+    u.updatedAt = nowISO();
+    writeJSON("users.json", users);
+    createNotification({
+      type: "profile_updated",
+      title: "Profile updated",
+      message: "Your profile details were updated successfully.",
+      link: "#notifications",
+      icon: "user",
+      userId: u.id,
+      dedupeKey: "profile:" + u.id + ":" + nowISO().slice(11, 16),
+    });
+    res.json({ success: true, user: { id: u.id, name: u.name, email: u.email, picture: u.picture, status: u.status, role: u.role || "user", phone: u.phone || "", city: u.city || "" } });
+  } catch (err) {
+    console.error("Profile update error:", err);
+    res.status(500).json({ success: false, error: "Failed to update profile" });
+  }
+});
+
+/* Promote / demote a user's role between "user" and "admin". */
+app.put("/api/admin/users/:id/role", requireAdmin, (req, res) => {
+  try {
+    const { role } = req.body || {};
+    if (!["user", "admin"].includes(role)) return res.status(400).json({ success: false, error: "Invalid role" });
+    const users = readJSON("users.json");
+    const u = users.find(x => x.id === req.params.id);
+    if (!u) return res.status(404).json({ success: false, error: "User not found" });
+    u.role = role;
+    u.roleUpdatedAt = nowISO();
+    writeJSON("users.json", users);
+    if (role === "admin") {
+      createNotification({
+        type: "role_changed", title: "You are now an admin",
+        message: "Admin access has been granted to your account.",
+        link: "/admin.html", icon: "shield", userId: u.id, dedupeKey: "role-admin:" + u.id,
+      });
+    }
+    res.json({ success: true, message: "Role updated to " + role });
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Failed to update role" });
+  }
+});
 
 app.get("/api/admin/orders", requireAdmin, (req, res) => {
   const orders = readJSON("orders.json");
@@ -121,6 +497,8 @@ app.get("/api/admin/contacts", requireAdmin, (req, res) => {
 app.get("/api/admin/stats", requireAdmin, (req, res) => {
   const orders = readJSON("orders.json");
   const contacts = readJSON("contacts.json");
+  const users = readJSON("users.json");
+  const notifs = getNotifs();
   const today = new Date().toISOString().slice(0, 10);
   res.json({
     success: true,
@@ -129,6 +507,10 @@ app.get("/api/admin/stats", requireAdmin, (req, res) => {
       todayOrders: orders.filter(o => o.createdAt.startsWith(today)).length,
       totalContacts: contacts.length,
       pendingOrders: orders.filter(o => o.status === "pending").length,
+      totalUsers: users.length,
+      pendingUsers: users.filter(u => u.status === "pending").length,
+      totalNotifications: notifs.filter(n => !n.deleted).length,
+      unreadNotifications: notifs.filter(n => !n.deleted && !n.read).length,
     },
   });
 });
@@ -144,6 +526,21 @@ app.put("/api/admin/orders/:id/status", requireAdmin, (req, res) => {
     orders[idx].status = status;
     orders[idx].updatedAt = new Date().toISOString();
     writeJSON("orders.json", orders);
+
+    // Notify the customer when their order status changes.
+    if (orders[idx].userId) {
+      const statusLabels = { confirmed: "confirmed", "in-progress": "in progress", delivered: "delivered and ready", cancelled: "cancelled" };
+      createNotification({
+        type: "order_status",
+        title: "Order " + status.replace("-", " "),
+        message: "Your order is now " + (statusLabels[status] || status) + ". Thank you for choosing IS Digital Platform!",
+        link: "#order",
+        icon: status === "delivered" ? "check" : "order",
+        userId: orders[idx].userId,
+        dedupeKey: "order-status:" + orders[idx].id + ":" + status,
+      });
+    }
+
     res.json({ success: true, message: "Status updated" });
   } catch (err) {
     console.error("Status error:", err);
@@ -505,7 +902,10 @@ app.post("/api/auth/google", apiLimiter, (req, res) => {
       return res.status(400).json({ success: false, error: "Missing Google account info" });
     }
     const users = readJSON("users.json");
+    const devSig = deviceSignature(req);
     let user = users.find(u => u.googleId === googleId);
+    const isNew = !user;
+
     if (!user) {
       user = {
         id: crypto.randomUUID(),
@@ -513,15 +913,63 @@ app.post("/api/auth/google", apiLimiter, (req, res) => {
         name,
         email,
         picture: picture || "",
+        role: "user",
+        phone: "",
+        city: "",
         status: "pending",
+        deviceHash: devSig,
+        loginHistory: [],
         createdAt: new Date().toISOString(),
       };
       users.push(user);
-      writeJSON("users.json", users);
     }
+
+    // For returning users detect sign-in from a brand new device/network.
+    let newDevice = false;
+    if (!isNew) {
+      const history = Array.isArray(user.loginHistory) ? user.loginHistory : [];
+      newDevice = !user.deviceHash || user.deviceHash !== devSig;
+      user.deviceHash = devSig;
+      history.push({ deviceHash: devSig, ip: req.ip, at: nowISO() });
+      user.loginHistory = history.slice(-20);
+      user.lastLoginAt = nowISO();
+    }
+    writeJSON("users.json", users);
+
+    if (isNew) {
+      // New user welcome + notify all admins of a pending registration.
+      createNotification({
+        type: "user_registered",
+        title: "Welcome to IS Digital Platform!",
+        message: "Thanks for joining. Your account is pending admin approval — you'll be notified once it's live.",
+        link: "#notifications",
+        icon: "user",
+        userId: user.id,
+        dedupeKey: "welcome:" + user.id,
+      });
+      notifyAdmins({
+        type: "user_registered",
+        title: "New user registration",
+        message: name + " (" + email + ") signed up and is waiting for approval.",
+        link: "/admin.html?section=users",
+        icon: "user",
+        dedupeKey: "reg:" + user.id,
+      });
+    } else if (newDevice) {
+      createNotification({
+        type: "new_login",
+        title: "New device sign-in detected",
+        message: "Your account was signed in from a new device (" + (req.headers["user-agent"] || "Unknown device") + ").",
+        link: "#notifications",
+        icon: "shield",
+        userId: user.id,
+        dedupeKey: "login:" + user.id + ":" + devSig,
+      });
+    }
+
     res.json({
       success: true,
-      user: { id: user.id, name: user.name, email: user.email, picture: user.picture, status: user.status },
+      user: { id: user.id, name: user.name, email: user.email, picture: user.picture, status: user.status, role: user.role || "user", phone: user.phone || "", city: user.city || "" },
     });
   } catch (err) {
     console.error("Auth error:", err);
@@ -538,7 +986,7 @@ app.get("/api/auth/user", apiLimiter, (req, res) => {
     if (!user) return res.status(404).json({ success: false, error: "User not found" });
     res.json({
       success: true,
-      user: { id: user.id, name: user.name, email: user.email, picture: user.picture, status: user.status },
+      user: { id: user.id, name: user.name, email: user.email, picture: user.picture, status: user.status, role: user.role || "user", phone: user.phone || "", city: user.city || "" },
     });
   } catch (err) {
     res.status(500).json({ success: false, error: "Failed" });
@@ -560,6 +1008,15 @@ app.put("/api/admin/users/:id/approve", requireAdmin, (req, res) => {
     users[idx].status = "approved";
     users[idx].approvedAt = new Date().toISOString();
     writeJSON("users.json", users);
+    createNotification({
+      type: "account_approved",
+      title: "Account approved",
+      message: "Congratulations! Your account is approved and you can now place orders.",
+      link: "#order",
+      icon: "check",
+      userId: users[idx].id,
+      dedupeKey: "approve:" + users[idx].id,
+    });
     res.json({ success: true, message: "User approved" });
   } catch (err) {
     res.status(500).json({ success: false, error: "Failed to approve" });
@@ -574,6 +1031,15 @@ app.put("/api/admin/users/:id/reject", requireAdmin, (req, res) => {
     users[idx].status = "rejected";
     users[idx].rejectedAt = new Date().toISOString();
     writeJSON("users.json", users);
+    createNotification({
+      type: "account_rejected",
+      title: "Account rejected",
+      message: "Your account was rejected. Please contact support for assistance.",
+      link: "#contact",
+      icon: "alert",
+      userId: users[idx].id,
+      dedupeKey: "reject:" + users[idx].id,
+    });
     res.json({ success: true, message: "User rejected" });
   } catch (err) {
     res.status(500).json({ success: false, error: "Failed to reject" });
