@@ -76,20 +76,37 @@
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto;}*{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important;}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto;}*{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important;}.app-content{scroll-behavior:auto;}}
+
+/* ---------------- App shell: hide scrollbars, keep scrolling ---------------- */
+*{scrollbar-width:none;-ms-overflow-style:none;}
+*::-webkit-scrollbar{width:0;height:0;display:none;}
+html,body{height:100%;}
+html{-webkit-tap-highlight-color:transparent;}
+.app-content{
+  height:100vh;
+  height:100dvh;
+  overflow-y:auto;
+  overflow-x:hidden;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  scroll-behavior:smooth;
+  position:relative;
+}
 
 body{
   font-family:var(--font-body);
   background:var(--bg);
   color:var(--text);
   line-height:1.6;
-  overflow-x:hidden;
+  overflow:hidden;
   transition:background .4s var(--ease),color .4s var(--ease);
 }
 img{max-width:100%;display:block;}
 a{color:inherit;text-decoration:none;}
 ul{list-style:none;}
 button{font:inherit;cursor:pointer;background:none;border:none;color:inherit;}
+button,a,[role="button"]{touch-action:manipulation;}
 input,textarea,select{font:inherit;color:inherit;}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
 
@@ -485,9 +502,8 @@ input,textarea,select{font:inherit;color:inherit;}
 .ts-select{position:relative;}
 .ts-select-arrow{margin-left:auto;flex-shrink:0;width:16px;height:16px;color:var(--accent);transition:transform .3s var(--ease);}
 .ts-control-trigger.open .ts-select-arrow{transform:rotate(180deg);}
-.ts-select-panel{max-height:290px;overflow-y:auto;padding:10px;list-style:none;}
-.ts-select-panel::-webkit-scrollbar{width:6px;}
-.ts-select-panel::-webkit-scrollbar-thumb{background:var(--border);border-radius:6px;}
+.ts-select-panel{max-height:290px;overflow-y:auto;padding:10px;list-style:none;scrollbar-width:none;-ms-overflow-style:none;}
+.ts-select-panel::-webkit-scrollbar{width:0;height:0;display:none;}
 .ts-option{
   display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:10px;font-size:.92rem;
   cursor:pointer;transition:background .18s,color .18s;color:var(--text);
@@ -948,7 +964,7 @@ input,textarea,select{font:inherit;color:inherit;}
 }
 @media(max-width:720px){
   .bottom-nav{display:block;}
-  body{padding-bottom:80px;}
+  .app-content{padding-bottom:84px;}
   .nav-links{display:none !important;}
   .menu-toggle{display:none !important;}
   .nav-inner{justify-content:space-between;}
@@ -1087,6 +1103,8 @@ input,textarea,select{font:inherit;color:inherit;}
     </div>
   </div>
 </header>
+
+<main class="app-content" id="appContent">
 
 <div class="page active-page" id="home">
 <!-- ============ HERO ============ -->
@@ -1733,6 +1751,8 @@ input,textarea,select{font:inherit;color:inherit;}
   <div class="footer-bottom"><p id="copyrightTap" style="cursor:default;user-select:none;">&copy; 2026 IS Digital. All Rights Reserved.</p></div>
 </footer>
 
+</main>
+
 <button id="backToTop" class="back-to-top" aria-label="Back to top">&uarr;</button>
 
 <!-- ============ BOTTOM NAV (mobile) ============ -->
@@ -1958,11 +1978,12 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ---------------- Navbar scroll state ---------------- */
   const navbar = document.getElementById("navbar");
   const backToTop = document.getElementById("backToTop");
-  window.addEventListener("scroll", () => {
-    navbar.classList.toggle("scrolled", window.scrollY > 40);
-    backToTop.classList.toggle("show", window.scrollY > 500);
-  });
-  backToTop.addEventListener("click", () => window.scrollTo({top:0, behavior:"smooth"}));
+  const appContent = document.getElementById("appContent") || document.documentElement;
+  appContent.addEventListener("scroll", () => {
+    navbar.classList.toggle("scrolled", appContent.scrollTop > 40);
+    backToTop.classList.toggle("show", appContent.scrollTop > 500);
+  }, { passive: true });
+  backToTop.addEventListener("click", () => appContent.scrollTo({top:0, behavior:"smooth"}));
 
   /* ---------------- Mobile menu ---------------- */
   const menuToggle = document.getElementById("menuToggle");
@@ -2023,7 +2044,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const target = document.getElementById(id);
     target.classList.add("active-page");
     setActiveNav(id);
-    window.scrollTo({ top: 0, behavior: opts.instant ? "auto" : "smooth" });
+    appContent.scrollTo({ top: 0, behavior: opts.instant ? "auto" : "smooth" });
     replayReveals(target);
     if (id === "home"){
       counters.forEach(c => { c.textContent = "0"; });
